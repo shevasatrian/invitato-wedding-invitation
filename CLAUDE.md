@@ -65,8 +65,8 @@ app/
   layout.tsx              ✅ 4 font + metadata + data-scroll-behavior
   page.tsx                ✅ susunan section, await searchParams (?to=)
   globals.css             ✅ design token + Tailwind + .scroll-locked
-  api/rsvp/route.ts       ⬜ POST create · GET ringkasan
-  api/wishes/route.ts     ⬜ POST create · GET list
+  api/rsvp/route.ts       ✅ POST create · GET ringkasan
+  api/wishes/route.ts     ✅ POST create · GET list
 
 components/
   InvitationShell.tsx     ✅ split-panel desktop (aside sticky + kolom 512px)
@@ -96,7 +96,7 @@ components/
 lib/config.ts             ✅ SATU-SATUNYA sumber data acara
 lib/schemas.ts            ✅ validasi Zod, dipakai client DAN server
 lib/utils.ts              ✅ countdown, timeAgo, link Calendar & Maps
-lib/prisma.ts             ⬜ koneksi database
+lib/prisma.ts             ✅ koneksi database (singleton, aman dari hot-reload)
 prisma/schema.prisma      ✅ model Rsvp & Wish
 scripts/optimize-images.mjs ✅
 public/images/*.webp      ✅ 11 file, 612 KB
@@ -222,7 +222,8 @@ Dokumentasi versi terpasang ada di `node_modules/next/dist/docs/`. Yang relevan:
 
 - **`searchParams` sekarang Promise.** Fitur personalisasi nama tamu (`?to=`) WAJIB `await props.searchParams`. Akses sinkron sudah dihapus total di v16.
 - **`data-scroll-behavior="smooth"` di `<html>`** diperlukan agar Next mematikan sementara `scroll-behavior: smooth` saat pindah halaman. Sudah dipasang di `app/layout.tsx`.
-- **`next dev` otomatis menambahkan blok `<!-- BEGIN:nextjs-agent-rules -->` di akhir file ini.** Blok itu ditulis ulang setiap kali dev server jalan — jadi ikut di-commit saja supaya working tree tetap bersih. Bisa dimatikan lewat `agentRules: false` di `next.config.ts`.
+- **`next dev` menulis ulang blok `BEGIN:nextjs-agent-rules` di akhir file ini** setiap kali dev server jalan — jadi ikut di-commit saja supaya working tree tetap bersih. Bisa dimatikan lewat `agentRules: false` di `next.config.ts`.
+- **JANGAN pernah menulis penanda `<`+`!-- BEGIN:nextjs-agent-rules --`+`>` secara utuh di dalam prosa file ini.** Generatornya (`node_modules/next/dist/server/lib/generate-agent-files.js:149`) mencari kemunculan **pertama** penanda BEGIN dan kemunculan **pertama** penanda END, lalu membuang semua yang ada di antaranya. Penyebutan di tengah dokumen membuat seluruh isi setelahnya terhapus — sudah pernah terjadi sekali, §10 sampai §13 hilang (147 baris) dan dipulihkan dengan `git checkout -- CLAUDE.md`. Karena itu penandanya sekarang ditulis terpotong.
 
 ### Cara cek tampilan responsif di mesin ini
 
@@ -288,7 +289,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
 - [x] **Step 3 — Design system.** Token warna + 4 font Google di `globals.css`/`layout.tsx`. Komponen: `Reveal` (IntersectionObserver), `Divider`, `Button` (solid/outline, bisa jadi tombol atau tautan), `Field` + `inputClasses`, `Section` + `SectionTitle`. `InvitationShell` = split-panel desktop (aside `sticky` + kolom 512px). Terverifikasi dengan pengukuran DOM, bukan screenshot: **390px** aside hidden, konten 319px, tanpa overflow horizontal · **768px** aside hidden, konten dikunci 480px · **1536px** aside tampil, main 512px. `tsc` + `eslint` + `next build` semua hijau.
 - [x] **Step 4 — Section statis.** Cover (gerbang + `?to=`) · Welcoming · CoupleProfile · Countdown · EventDetails · LocationMap · Gallery + Lightbox · Footer · NavDrawer · MusicToggle. `Invitation` memegang satu-satunya state halaman (`opened`); section tetap Server Component lewat `children`. Terverifikasi: countdown berdetak (112d 19j 32m, detik turun) · gerbang mengunci lalu melepas scroll · lightbox buka/panah/Escape · nav drawer buka-tutup + `inert` · 13 gambar termuat, 0 rusak · tanpa overflow horizontal di 390/768/1536 · `next build` hijau. **Menunggu file musik** — `MusicToggle` menyembunyikan diri sendiri kalau audio gagal dimuat, jadi halaman tetap normal sementara ini.
-- [ ] **Step 5 — Backend** (`lib/prisma.ts`, 4 route handler)
+- [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. **Jalur suksesnya (201) belum diuji** — butuh kredensial Supabase; tanpa `DATABASE_URL`, query Prisma gagal dan tertangkap rapi sebagai 500 sesuai kontrak.
 - [ ] **Step 6 — Form RSVP & Wishes** tersambung API
 - [ ] **Step 7 — Test Vitest**
 - [ ] **Step 8 — Polish & verifikasi** (375/768/1440px, a11y, `prefers-reduced-motion`)
@@ -308,6 +309,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `6190bdc` | design system + kerangka split-panel desktop |
 | `b96efc1` | seluruh section, nav drawer, kontrol musik |
 | `a2efc20` | musik latar + pindahkan `play()` ke handler klik |
+| `5bdec90` | catatan Step 3 & 4 di CLAUDE.md |
 
 ---
 
@@ -319,7 +321,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | Belum ada satu pun test | Step 7 |
 | `README.md` masih bawaan `create-next-app` | Step 9 |
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |
-| Belum pernah dijalankan dengan database sungguhan | Step 5, butuh kredensial Supabase |
+| Belum pernah dijalankan dengan database sungguhan — jalur 400 & 405 sudah diuji, jalur 201 belum | butuh kredensial Supabase dari user |
 
 ---
 
