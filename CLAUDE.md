@@ -324,7 +324,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 6 — Form RSVP & Wishes.** Dua Client Component yang bentuknya sengaja dibuat identik, tanpa hook bersama — satu form cukup dibaca dari atas ke bawah. Terverifikasi lewat pengukuran DOM di browser: submit form kosong → 2 pesan error + `aria-invalid` + **0 request** (validasi browser benar-benar menahan) · hadir tapi 0 orang → tertahan juga, aturan lintas-field jalan di client · submit valid → **tepat satu** `fetch("/api/rsvp")`, server balas 500 (belum ada DB), pesannya tampil dan isian tamu tidak hilang · daftar wishes gagal dimuat → "Daftar ucapan sedang tidak bisa dimuat", bukan halaman rusak · 390px form 319px, 768px form 480px, tanpa overflow horizontal. `tsc` + `eslint` + `next build` hijau.
 - [x] **Step 7 — Test Vitest.** **37 test, 3 berkas, semua hijau dalam 0,7 detik** dan tidak satu pun menyentuh database. `tests/utils.test.ts` (15) — `getTimeLeft`, `pad`, `timeAgo`, link Calendar/Maps, `formatEventDate`; `now` selalu dikirim sebagai parameter supaya hasilnya tidak bergantung jam mesin. `tests/schemas.test.ts` (16) — bernilai ganda karena schema yang sama dipakai browser dan server. `tests/api-rsvp.test.ts` (6) — `vi.mock` mengganti `@/lib/prisma` dengan tiruan, sehingga bisa memeriksa **apa yang hendak disimpan server**: 201, 400 tanpa menyentuh database, body bukan JSON → 400, dan 500 yang tidak membocorkan pesan teknis. Test kuncinya sudah diuji balik dengan sengaja merusak kode (`guestCount: attendance === "ATTENDING" ? guestCount : 0` → `guestCount`): test **gagal** dengan "expected 9 to be +0", lalu kode dikembalikan. Test yang tidak pernah bisa gagal tidak membuktikan apa pun.
 - [x] **Step 8 — Polish & verifikasi.** Empat cacat aksesibilitas nyata ditemukan lewat pengukuran, lalu diperbaiki. **(1) Kontras** — 13 elemen di bawah ambang AA; sekarang **54 elemen diperiksa, 0 gagal** (aturannya di §5, plus token `stone` dinaikkan). **(2) Heading hilang** — section Wedding Details sama sekali tanpa heading padahal nav drawer menautkannya, jadi pengguna pembaca layar yang berpindah lewat daftar heading akan melewatinya; "Save the Date" kini `<h2>` dan nama acara `<h3>`, tampilan tidak berubah sedikit pun. **(3) Penanda fokus** — 8 kontrol (hamburger, 5 tautan nav, tombol musik, tombol tutup lightbox) tidak punya penanda fokus sama sekali; sekarang **26 dari 26** punya. **(4) Bahasa** — section RSVP & Kind Words berbahasa Indonesia di dalam halaman `lang="en"`, kini ditandai `lang="id"` lewat prop baru di `Section`, supaya pembaca layar tidak melafalkan "Kirim Konfirmasi" dengan aturan Inggris. Responsif diukur ulang: **375px** (scrollW 360, aside tersembunyi, form 304px) · **768px** (form dikunci 480px) · **1440px** (aside sticky 913px + kolom main 512px) — tanpa overflow horizontal di ketiganya. `prefers-reduced-motion` sudah ada sejak Step 3 dan terkonfirmasi sampai ke browser. 37 test, `tsc`, `eslint`, `next build` semua hijau.
-- [ ] **Step 9 — README** (cara jalan, arsitektur, keputusan teknis, disclosure AI)
+- [x] **Step 9 — README.** 11 bagian: cara jalan lokal · setup dua URL database beserta alasan port 6543 vs 5432 · daftar fitur dipetakan ke PRD §1.5 dan §1.6 · arsitektur + di mana state disimpan + kontrak API · diagram alur data RSVP **dengan perintah `curl` yang bisa dijalankan pembaca** untuk membuktikan sendiri bahwa server tidak percaya kiriman client · keputusan teknis termasuk tabel library yang sengaja ditolak dan alasan turun ke Prisma 6 · aksesibilitas & performa · testing · deploy · **disclosure AI** (dipisah: yang dibantu AI, yang tetap keputusan manusia, dan yang diverifikasi ulang — termasuk dua saran AI yang dibatalkan setelah diuji) · kredit. Empat klaim dikoreksi setelah dicek ke berkasnya: ukuran audio 4,4 MB, host pooler `aws-0`, dan tombol musik disembunyikan oleh `Invitation` (bukan oleh `MusicToggle` sendiri). Tautan demo & repo masih placeholder sampai Step 10.
 - [ ] **Step 10 — Deploy** Vercel + Supabase
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
@@ -345,6 +345,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `6727a0a` | form RSVP & Wishes tersambung API |
 | `d683db5` | migrasi Prisma + verifikasi dengan Supabase |
 | `e765974` | 37 test Vitest |
+| `f8c1ce6` | perbaikan a11y: kontras, heading, fokus, bahasa |
 
 ---
 
@@ -352,7 +353,6 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| `README.md` masih bawaan `create-next-app` | Step 9 |
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |
 | Data uji (`Budi Santoso`, `Siti Rahayu`, `Rani Wijaya`) masih ada di database | hapus sebelum deploy, Step 10 |
 
