@@ -101,7 +101,8 @@ prisma/schema.prisma      ✅ model Rsvp & Wish
 scripts/optimize-images.mjs ✅
 public/images/*.webp      ✅ 11 file, 612 KB
 public/audio/backsound.mp3 ✅ 4,4 MB
-tests/                    ⬜
+tests/                    ✅ 37 test: utils, schemas, route handler
+vitest.config.mts         ✅ alias @/ untuk test
 ```
 
 **Aturan yang dipegang konsisten:**
@@ -293,7 +294,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 4 — Section statis.** Cover (gerbang + `?to=`) · Welcoming · CoupleProfile · Countdown · EventDetails · LocationMap · Gallery + Lightbox · Footer · NavDrawer · MusicToggle. `Invitation` memegang satu-satunya state halaman (`opened`); section tetap Server Component lewat `children`. Terverifikasi: countdown berdetak (112d 19j 32m, detik turun) · gerbang mengunci lalu melepas scroll · lightbox buka/panah/Escape · nav drawer buka-tutup + `inert` · 13 gambar termuat, 0 rusak · tanpa overflow horizontal di 390/768/1536 · `next build` hijau. **Menunggu file musik** — `MusicToggle` menyembunyikan diri sendiri kalau audio gagal dimuat, jadi halaman tetap normal sementara ini.
 - [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. Kemudian diuji ulang dengan **Supabase sungguhan** setelah `prisma migrate dev --name init`: `POST /api/rsvp` → **201** baris tersimpan · **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` disimpan sebagai **0** — bukti server tidak percaya kiriman client · `GET /api/rsvp` → `{attending:1, notAttending:1, totalPax:3}` · `POST /api/wishes` → 201 dan langsung muncul di `GET`.
 - [x] **Step 6 — Form RSVP & Wishes.** Dua Client Component yang bentuknya sengaja dibuat identik, tanpa hook bersama — satu form cukup dibaca dari atas ke bawah. Terverifikasi lewat pengukuran DOM di browser: submit form kosong → 2 pesan error + `aria-invalid` + **0 request** (validasi browser benar-benar menahan) · hadir tapi 0 orang → tertahan juga, aturan lintas-field jalan di client · submit valid → **tepat satu** `fetch("/api/rsvp")`, server balas 500 (belum ada DB), pesannya tampil dan isian tamu tidak hilang · daftar wishes gagal dimuat → "Daftar ucapan sedang tidak bisa dimuat", bukan halaman rusak · 390px form 319px, 768px form 480px, tanpa overflow horizontal. `tsc` + `eslint` + `next build` hijau.
-- [ ] **Step 7 — Test Vitest**
+- [x] **Step 7 — Test Vitest.** **37 test, 3 berkas, semua hijau dalam 0,7 detik** dan tidak satu pun menyentuh database. `tests/utils.test.ts` (15) — `getTimeLeft`, `pad`, `timeAgo`, link Calendar/Maps, `formatEventDate`; `now` selalu dikirim sebagai parameter supaya hasilnya tidak bergantung jam mesin. `tests/schemas.test.ts` (16) — bernilai ganda karena schema yang sama dipakai browser dan server. `tests/api-rsvp.test.ts` (6) — `vi.mock` mengganti `@/lib/prisma` dengan tiruan, sehingga bisa memeriksa **apa yang hendak disimpan server**: 201, 400 tanpa menyentuh database, body bukan JSON → 400, dan 500 yang tidak membocorkan pesan teknis. Test kuncinya sudah diuji balik dengan sengaja merusak kode (`guestCount: attendance === "ATTENDING" ? guestCount : 0` → `guestCount`): test **gagal** dengan "expected 9 to be +0", lalu kode dikembalikan. Test yang tidak pernah bisa gagal tidak membuktikan apa pun.
 - [ ] **Step 8 — Polish & verifikasi** (375/768/1440px, a11y, `prefers-reduced-motion`)
 - [ ] **Step 9 — README** (cara jalan, arsitektur, keputusan teknis, disclosure AI)
 - [ ] **Step 10 — Deploy** Vercel + Supabase
@@ -314,6 +315,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `5bdec90` | catatan Step 3 & 4 di CLAUDE.md |
 | `595aa19` | backend: 4 route handler + koneksi Prisma |
 | `6727a0a` | form RSVP & Wishes tersambung API |
+| `d683db5` | migrasi Prisma + verifikasi dengan Supabase |
 
 ---
 
@@ -321,7 +323,6 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| Belum ada satu pun test | Step 7 |
 | `README.md` masih bawaan `create-next-app` | Step 9 |
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |
 | Data uji (`Budi Santoso`, `Siti Rahayu`, `Rani Wijaya`) masih ada di database | hapus sebelum deploy, Step 10 |
