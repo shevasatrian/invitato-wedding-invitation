@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Supabase menaruh PgBouncer (connection pooler) di depan Postgres.
+// PgBouncer tidak mendukung prepared statement, sedangkan `prisma migrate`
+// membutuhkannya — karena itu dua URL:
+//   DATABASE_URL -> lewat pooler (port 6543), dipakai aplikasi saat berjalan
+//   DIRECT_URL   -> langsung ke Postgres (port 5432), dipakai saat migrate
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Attendance {
+  ATTENDING
+  NOT_ATTENDING
+}
+
+/// Satu baris = satu tamu yang mengisi form konfirmasi kehadiran.
+model Rsvp {
+  id         String     @id @default(cuid())
+  guestName  String     @db.VarChar(80)
+  attendance Attendance
+  guestCount Int        @default(1) // selalu 0 kalau attendance = NOT_ATTENDING
+  createdAt  DateTime   @default(now())
+
+  @@index([createdAt])
+}
+
+/// Satu baris = satu ucapan/doa dari tamu.
+model Wish {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(80)
+  message   String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  // Daftar wishes selalu diurutkan dari yang terbaru, jadi indeksnya menurun.
+  @@index([createdAt(sort: Desc)])
+}
