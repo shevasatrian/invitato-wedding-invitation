@@ -26,7 +26,7 @@ export default function Gallery() {
           <CoupleNames andClassName="mx-2 text-xl" />
         </p>
 
-        <p className="mt-5 text-center font-body text-lg text-ink/75 italic">
+        <p className="mt-5 text-center font-body text-lg text-ink/80 italic">
           &ldquo;{quote}&rdquo;
         </p>
       </Reveal>
@@ -61,7 +61,7 @@ export default function Gallery() {
         ))}
       </div>
 
-      <p className="mt-6 text-center font-script text-xl text-ink/60">
+      <p className="mt-6 text-center font-script text-xl text-ink/80">
         {couple.hashtag}
       </p>
 

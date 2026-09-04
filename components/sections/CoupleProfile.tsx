@@ -51,9 +51,9 @@ function PersonCard({
         <p className="mt-4 font-body text-base font-semibold text-ink/80">
           {person.role}
         </p>
-        <p className="font-body text-base text-ink/75">{person.father}</p>
-        <p className="font-script text-lg text-ink/60">&amp;</p>
-        <p className="font-body text-base text-ink/75">{person.mother}</p>
+        <p className="font-body text-base text-ink/80">{person.father}</p>
+        <p className="font-script text-lg text-ink/80">&amp;</p>
+        <p className="font-body text-base text-ink/80">{person.mother}</p>
 
         <Button
           href={`https://www.instagram.com/${person.instagram}`}

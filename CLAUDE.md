@@ -139,7 +139,7 @@ Kelimanya `useState` biasa dan tidak ada satu pun yang dibaca komponen lain.
 | `--ink` | `#2C3F4E` | teks utama, nav drawer |
 | `--mist` | `#D5DADE` | background section utama |
 | `--cream` | `#FAF8F4` | background alternatif |
-| `--stone` | `#737373` | tombol, teks sekunder |
+| `--stone` | `#6e6e6e` | tombol, teks sekunder. Dinaikkan dari `#737373` milik template asli: nilai itu memberi kontras 4,47 di atas cream — meleset tipis dari ambang WCAG AA 4,5. Selisih warnanya tidak terlihat mata, angkanya jadi lolos (4,81). |
 | `--charcoal` | `#323030` | overlay, footer |
 
 ### Font (terkonfirmasi dari halaman asli)
@@ -151,6 +151,21 @@ Kelimanya `useState` biasa dan tidak ada satu pun yang dibaca komponen lain.
 - **Mobile:** satu kolom, lebar konten maks ~480px
 - **Desktop ≥1024px:** panel kiri **fixed** (foto besar + "THE WEDDING OF" + ayat), panel kanan kolom ~480–560px yang scroll berisi seluruh undangan. Ini signature Invitato, wajib ditiru.
 - **Motion:** fade-in + translate-Y saat section masuk viewport; nav drawer slide dari kanan
+
+### Aturan kontras yang dipegang (hasil pengukuran, bukan perkiraan)
+
+**Teks sekunder berukuran kecil selalu `text-ink/80`.** Itu satu-satunya nilai yang lolos WCAG AA di atas kedua latar yang dipakai project ini:
+
+| Opasitas | di atas cream | di atas mist |
+|---|---|---|
+| `text-ink/60` | 3,37 ❌ | 3,00 ❌ |
+| `text-ink/70` | 4,36 ❌ | 3,76 ❌ |
+| `text-ink/75` | 5,00 ✅ | 4,22 ❌ |
+| **`text-ink/80`** | **5,75 ✅** | **4,76 ✅** |
+
+Ornamen (`Divider`) dikecualikan — elemennya `aria-hidden` dan murni hiasan, jadi tidak tunduk pada ambang teks.
+
+Catatan cara mengukur: Tailwind v4 memberi warna dalam `oklch()`. Regex yang membaca angka di dalamnya sebagai RGB akan menghasilkan rasio yang ngawur. Konversi yang benar: lukis warnanya ke `<canvas>` 1x1, lalu baca pikselnya.
 
 ### Urutan section template asli
 
@@ -228,6 +243,19 @@ Dokumentasi versi terpasang ada di `node_modules/next/dist/docs/`. Yang relevan:
 - **`next dev` menulis ulang blok `BEGIN:nextjs-agent-rules` di akhir file ini** setiap kali dev server jalan — jadi ikut di-commit saja supaya working tree tetap bersih. Bisa dimatikan lewat `agentRules: false` di `next.config.ts`.
 - **JANGAN pernah menulis penanda `<`+`!-- BEGIN:nextjs-agent-rules --`+`>` secara utuh di dalam prosa file ini.** Generatornya (`node_modules/next/dist/server/lib/generate-agent-files.js:149`) mencari kemunculan **pertama** penanda BEGIN dan kemunculan **pertama** penanda END, lalu membuang semua yang ada di antaranya. Penyebutan di tengah dokumen membuat seluruh isi setelahnya terhapus — sudah pernah terjadi sekali, §10 sampai §13 hilang (147 baris) dan dipulihkan dengan `git checkout -- CLAUDE.md`. Karena itu penandanya sekarang ditulis terpotong.
 
+### IntersectionObserver TIDAK berjalan di tab otomatis ini
+
+Tab yang dikendalikan otomatis punya `document.visibilityState === "hidden"`. Akibatnya `requestAnimationFrame` tidak pernah dipanggil dan **IntersectionObserver tidak pernah menembak** — semua `Reveal` bertahan di `opacity: 0` selamanya, sehingga undangan tampak rusak total padahal tidak.
+
+Sebelum menuduh `Reveal` rusak, buat observer percobaan pada elemen yang jelas ada di dalam layar. Kalau yang itu pun tidak menembak, masalahnya ada di tab, bukan di kode.
+
+```js
+document.visibilityState   // "hidden" -> IO dan rAF mati
+await new Promise(res => { let ok=false; requestAnimationFrame(()=>ok=true); setTimeout(()=>res(ok),500); })
+```
+
+Hal terkait: `window.scrollTo` juga macet karena `scroll-behavior: smooth` dianimasikan compositor. Pakai `window.scrollTo({ top: y, behavior: "instant" })`. Dan hindari loop scroll panjang — panggilan CDP-nya bisa kena batas waktu 45 detik.
+
 ### Cara cek tampilan responsif di mesin ini
 
 `resize_window` **tidak mengubah viewport halaman** di sini — `innerWidth` mentok di 1536 berapa pun ukuran jendelanya. Cara yang berhasil: suntik iframe berukuran HP lewat console, karena media query mengikuti viewport iframe-nya.
@@ -295,7 +323,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. Kemudian diuji ulang dengan **Supabase sungguhan** setelah `prisma migrate dev --name init`: `POST /api/rsvp` → **201** baris tersimpan · **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` disimpan sebagai **0** — bukti server tidak percaya kiriman client · `GET /api/rsvp` → `{attending:1, notAttending:1, totalPax:3}` · `POST /api/wishes` → 201 dan langsung muncul di `GET`.
 - [x] **Step 6 — Form RSVP & Wishes.** Dua Client Component yang bentuknya sengaja dibuat identik, tanpa hook bersama — satu form cukup dibaca dari atas ke bawah. Terverifikasi lewat pengukuran DOM di browser: submit form kosong → 2 pesan error + `aria-invalid` + **0 request** (validasi browser benar-benar menahan) · hadir tapi 0 orang → tertahan juga, aturan lintas-field jalan di client · submit valid → **tepat satu** `fetch("/api/rsvp")`, server balas 500 (belum ada DB), pesannya tampil dan isian tamu tidak hilang · daftar wishes gagal dimuat → "Daftar ucapan sedang tidak bisa dimuat", bukan halaman rusak · 390px form 319px, 768px form 480px, tanpa overflow horizontal. `tsc` + `eslint` + `next build` hijau.
 - [x] **Step 7 — Test Vitest.** **37 test, 3 berkas, semua hijau dalam 0,7 detik** dan tidak satu pun menyentuh database. `tests/utils.test.ts` (15) — `getTimeLeft`, `pad`, `timeAgo`, link Calendar/Maps, `formatEventDate`; `now` selalu dikirim sebagai parameter supaya hasilnya tidak bergantung jam mesin. `tests/schemas.test.ts` (16) — bernilai ganda karena schema yang sama dipakai browser dan server. `tests/api-rsvp.test.ts` (6) — `vi.mock` mengganti `@/lib/prisma` dengan tiruan, sehingga bisa memeriksa **apa yang hendak disimpan server**: 201, 400 tanpa menyentuh database, body bukan JSON → 400, dan 500 yang tidak membocorkan pesan teknis. Test kuncinya sudah diuji balik dengan sengaja merusak kode (`guestCount: attendance === "ATTENDING" ? guestCount : 0` → `guestCount`): test **gagal** dengan "expected 9 to be +0", lalu kode dikembalikan. Test yang tidak pernah bisa gagal tidak membuktikan apa pun.
-- [ ] **Step 8 — Polish & verifikasi** (375/768/1440px, a11y, `prefers-reduced-motion`)
+- [x] **Step 8 — Polish & verifikasi.** Empat cacat aksesibilitas nyata ditemukan lewat pengukuran, lalu diperbaiki. **(1) Kontras** — 13 elemen di bawah ambang AA; sekarang **54 elemen diperiksa, 0 gagal** (aturannya di §5, plus token `stone` dinaikkan). **(2) Heading hilang** — section Wedding Details sama sekali tanpa heading padahal nav drawer menautkannya, jadi pengguna pembaca layar yang berpindah lewat daftar heading akan melewatinya; "Save the Date" kini `<h2>` dan nama acara `<h3>`, tampilan tidak berubah sedikit pun. **(3) Penanda fokus** — 8 kontrol (hamburger, 5 tautan nav, tombol musik, tombol tutup lightbox) tidak punya penanda fokus sama sekali; sekarang **26 dari 26** punya. **(4) Bahasa** — section RSVP & Kind Words berbahasa Indonesia di dalam halaman `lang="en"`, kini ditandai `lang="id"` lewat prop baru di `Section`, supaya pembaca layar tidak melafalkan "Kirim Konfirmasi" dengan aturan Inggris. Responsif diukur ulang: **375px** (scrollW 360, aside tersembunyi, form 304px) · **768px** (form dikunci 480px) · **1440px** (aside sticky 913px + kolom main 512px) — tanpa overflow horizontal di ketiganya. `prefers-reduced-motion` sudah ada sejak Step 3 dan terkonfirmasi sampai ke browser. 37 test, `tsc`, `eslint`, `next build` semua hijau.
 - [ ] **Step 9 — README** (cara jalan, arsitektur, keputusan teknis, disclosure AI)
 - [ ] **Step 10 — Deploy** Vercel + Supabase
 
@@ -316,6 +344,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `595aa19` | backend: 4 route handler + koneksi Prisma |
 | `6727a0a` | form RSVP & Wishes tersambung API |
 | `d683db5` | migrasi Prisma + verifikasi dengan Supabase |
+| `e765974` | 37 test Vitest |
 
 ---
 

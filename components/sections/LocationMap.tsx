@@ -19,10 +19,10 @@ export default function LocationMap() {
       <SectionTitle>Location</SectionTitle>
 
       <Reveal delay={100}>
-        <p className="mt-6 text-center font-body text-lg text-ink/75">
+        <p className="mt-6 text-center font-body text-lg text-ink/80">
           {mapVenue.venue}
         </p>
-        <p className="mt-1 text-center font-body text-base text-ink/65">
+        <p className="mt-1 text-center font-body text-base text-ink/80">
           {mapVenue.address}
         </p>
       </Reveal>

@@ -62,7 +62,7 @@ export default function Lightbox({
         type="button"
         onClick={onClose}
         aria-label="Tutup"
-        className="absolute top-5 right-5 z-10 p-2 font-ui text-2xl text-white/80 hover:text-white"
+        className="absolute top-5 right-5 z-10 p-2 font-ui text-2xl text-white/80 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         &times;
       </button>
@@ -110,7 +110,7 @@ function NavButton({
         event.stopPropagation();
         onClick();
       }}
-      className={`absolute z-10 p-4 font-ui text-3xl text-white/70 hover:text-white ${
+      className={`absolute z-10 p-4 font-ui text-3xl text-white/70 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
         side === "left" ? "left-1" : "right-1"
       }`}
     >

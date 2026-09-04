@@ -14,7 +14,7 @@
   --color-ink: #2c3f4e; /* teks utama, nav drawer */
   --color-mist: #d5dade; /* latar section utama (biru-abu lembut) */
   --color-cream: #faf8f4; /* latar alternatif */
-  --color-stone: #737373; /* tombol, teks sekunder */
+  --color-stone: #6e6e6e; /* tombol, teks sekunder */
   --color-charcoal: #323030; /* overlay gelap, footer */
 
   /* Font di-load di app/layout.tsx lewat next/font. */

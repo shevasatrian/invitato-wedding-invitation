@@ -19,7 +19,7 @@ export default function MusicToggle({
       onClick={onToggle}
       aria-label={playing ? "Matikan musik" : "Nyalakan musik"}
       aria-pressed={playing}
-      className="fixed bottom-5 left-[4.5rem] z-30 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/80 text-white backdrop-blur-sm transition-colors hover:bg-charcoal"
+      className="fixed bottom-5 left-[4.5rem] z-30 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/80 text-white backdrop-blur-sm transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <MusicIcon muted={!playing} />
     </button>

@@ -116,7 +116,7 @@ export default function Rsvp() {
   const attending = form.attendance === "ATTENDING";
 
   return (
-    <Section id="rsvp" className="bg-cream">
+    <Section id="rsvp" lang="id" className="bg-cream">
       <SectionTitle>RSVP</SectionTitle>
 
       <Reveal delay={100}>

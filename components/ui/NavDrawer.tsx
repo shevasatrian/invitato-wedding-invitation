@@ -32,7 +32,7 @@ export default function NavDrawer() {
         onClick={() => setOpen(true)}
         aria-label="Buka menu"
         aria-expanded={open}
-        className="fixed bottom-5 left-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/80 text-white backdrop-blur-sm transition-colors hover:bg-charcoal"
+        className="fixed bottom-5 left-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/80 text-white backdrop-blur-sm transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         <span aria-hidden="true" className="space-y-[5px]">
           <span className="block h-px w-4 bg-current" />
@@ -69,7 +69,7 @@ export default function NavDrawer() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Tutup menu"
-              className="-mt-2 p-2 font-ui text-2xl text-white/70 hover:text-white"
+              className="-mt-2 p-2 font-ui text-2xl text-white/70 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               &times;
             </button>
@@ -81,7 +81,7 @@ export default function NavDrawer() {
                 <a
                   href={`#${link.id}`}
                   onClick={() => setOpen(false)}
-                  className="block py-4 text-right font-display text-base tracking-[0.12em] text-white/90 transition-colors hover:text-white"
+                  className="block py-4 text-right font-display text-base tracking-[0.12em] text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   {link.label}
                 </a>

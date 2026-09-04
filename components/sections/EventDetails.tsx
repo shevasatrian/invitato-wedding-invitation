@@ -11,9 +11,12 @@ export default function EventDetails() {
     <Section id="details" className="bg-cream">
       <div className="text-center">
         <Reveal>
-          <p className="font-display text-[0.7rem] tracking-[0.25em] text-ink/60 uppercase">
+          {/* Ini heading section-nya, bukan sekadar teks hiasan: nav drawer
+              menautkan ke sini, dan pengguna pembaca layar berpindah antar
+              bagian lewat daftar heading. Tampilannya tidak berubah. */}
+          <h2 className="font-display text-[0.7rem] tracking-[0.25em] text-ink/80 uppercase">
             Save the Date
-          </p>
+          </h2>
           <p className="mt-4 font-display text-2xl tracking-[0.06em] text-ink">
             {formatEventDate(weddingDate)}
           </p>
@@ -33,9 +36,9 @@ export default function EventDetails() {
             )}
 
             <Reveal delay={index * 100} className={index === 0 ? "mt-10" : ""}>
-              <p className="font-display text-[0.7rem] tracking-[0.25em] text-ink/60 uppercase">
+              <h3 className="font-display text-[0.7rem] tracking-[0.25em] text-ink/80 uppercase">
                 {event.title}
-              </p>
+              </h3>
 
               <p className="mt-3 font-display text-3xl text-ink">
                 {event.time}

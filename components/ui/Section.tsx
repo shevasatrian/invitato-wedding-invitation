@@ -9,16 +9,24 @@ import Reveal from "./Reveal";
  */
 export default function Section({
   id,
+  lang,
   children,
   className = "",
 }: {
   /** Dipakai nav drawer untuk scroll ke sini. Lihat `navLinks` di lib/config.ts. */
   id?: string;
+  /**
+   * Kode bahasa isi section, dipakai section yang berbahasa Indonesia
+   * (RSVP dan Kind Words) sementara halamannya berbahasa Inggris.
+   * Tanpa ini, pembaca layar melafalkan "Kirim Konfirmasi" dengan
+   * aturan pengucapan bahasa Inggris.
+   */
+  lang?: string;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <section id={id} className={`px-7 py-20 ${className}`}>
+    <section id={id} lang={lang} className={`px-7 py-20 ${className}`}>
       {/* Lebar baca dikunci ~480px. Di layar tablet (768px) undangan tetap
           tampil sebagai kolom ramping di tengah, sama seperti di HP —
           kalau dibiarkan melebar, baris teksnya jadi terlalu panjang

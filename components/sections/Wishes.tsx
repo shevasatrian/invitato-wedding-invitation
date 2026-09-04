@@ -120,7 +120,7 @@ export default function Wishes() {
   }
 
   return (
-    <Section id="wishes" className="bg-cream">
+    <Section id="wishes" lang="id" className="bg-cream">
       <SectionTitle>Kind Words</SectionTitle>
 
       <Reveal delay={100}>
@@ -175,7 +175,7 @@ export default function Wishes() {
           )}
 
           {sent && !serverError && (
-            <p role="status" className="font-ui text-xs text-ink/70">
+            <p role="status" className="font-ui text-xs text-ink/80">
               Terima kasih, ucapan Anda sudah kami terima.
             </p>
           )}
