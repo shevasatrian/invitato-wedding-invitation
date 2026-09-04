@@ -58,30 +58,72 @@ npm run db:studio        # lihat isi tabel
 
 ## 4. Konvensi struktur
 
+Tanda ✅ = sudah ada. ⬜ = belum dibuat.
+
 ```
 app/
-  layout.tsx           fonts + metadata
-  page.tsx             komposisi semua section (Server Component)
-  globals.css          design token + Tailwind
-  api/rsvp/route.ts    POST create · GET ringkasan
-  api/wishes/route.ts  POST create · GET list
-components/sections/   1 file = 1 section, nama = judul di layar
-components/ui/         Reveal, NavDrawer, MusicToggle, Lightbox, Divider, Button, Field
-lib/config.ts          SATU-SATUNYA sumber data acara
-lib/schemas.ts         validasi Zod, dipakai client DAN server
-lib/prisma.ts          koneksi database
-lib/utils.ts           fungsi murni, semuanya ada test-nya
-prisma/schema.prisma
-scripts/optimize-images.mjs
-tests/
+  layout.tsx              ✅ 4 font + metadata + data-scroll-behavior
+  page.tsx                ✅ susunan section, await searchParams (?to=)
+  globals.css             ✅ design token + Tailwind + .scroll-locked
+  api/rsvp/route.ts       ⬜ POST create · GET ringkasan
+  api/wishes/route.ts     ⬜ POST create · GET list
+
+components/
+  InvitationShell.tsx     ✅ split-panel desktop (aside sticky + kolom 512px)
+  Invitation.tsx          ✅ "use client" — SATU-SATUNYA state halaman
+  sections/
+    Cover.tsx             ✅ gerbang, sapaan ?to=, tombol Open Invitation
+    Welcoming.tsx         ✅ sambutan + foto berbingkai + tekstur sutra
+    CoupleProfile.tsx     ✅ 2 kartu mempelai (PersonCard dipakai 2x)
+    Countdown.tsx         ✅ "use client" — timer + Save the Date
+    EventDetails.tsx      ✅ tanggal + 2 acara + See Location
+    LocationMap.tsx       ✅ iframe Google Maps tanpa API key
+    Gallery.tsx           ✅ "use client" — grid + lightbox
+    Rsvp.tsx              ⬜
+    Wishes.tsx            ⬜
+    Footer.tsx            ✅ ucapan terima kasih + kredit musik
+  ui/
+    Reveal.tsx            ✅ "use client" — IntersectionObserver
+    Section.tsx           ✅ Section + SectionTitle
+    Divider.tsx           ✅ ornamen belah ketupat
+    Button.tsx            ✅ solid/outline, jadi <button> ATAU tautan
+    Field.tsx             ✅ label + isian + error, plus inputClasses
+    CoupleNames.tsx       ✅ "RICKY and FELLYCIA" — dipakai 6 tempat
+    Lightbox.tsx          ✅ "use client" — modal foto, Esc + panah
+    NavDrawer.tsx         ✅ "use client" — menu geser, inert saat tutup
+    MusicToggle.tsx       ✅ tombol tampilan murni, tanpa state
+
+lib/config.ts             ✅ SATU-SATUNYA sumber data acara
+lib/schemas.ts            ✅ validasi Zod, dipakai client DAN server
+lib/utils.ts              ✅ countdown, timeAgo, link Calendar & Maps
+lib/prisma.ts             ⬜ koneksi database
+prisma/schema.prisma      ✅ model Rsvp & Wish
+scripts/optimize-images.mjs ✅
+public/images/*.webp      ✅ 11 file, 612 KB
+public/audio/backsound.mp3 ✅ 4,4 MB
+tests/                    ⬜
 ```
 
 **Aturan yang dipegang konsisten:**
 - 1 file = 1 section, namanya sama dengan judul yang tampil. "Kode countdown di mana?" → `components/sections/Countdown.tsx`
 - Tidak ada string data acara yang di-hardcode di komponen. Semua dari `lib/config.ts`
-- Server Component secara default. `"use client"` hanya di: Countdown, Rsvp, Wishes, NavDrawer, MusicToggle, Lightbox, Reveal
+- Server Component secara default. `"use client"` hanya di 7 file yang ditandai di atas
 - Keempat route handler berbentuk sama persis: `try/catch` → `safeParse` → query Prisma → `NextResponse.json`
 - Komentar hanya menjelaskan **kenapa**, bukan mengulang apa yang sudah jelas dari kode
+
+### Di mana state disimpan
+
+Hanya ada **tiga tempat** yang memegang state, dan semuanya `useState` biasa:
+
+| Tempat | State | Kenapa di situ |
+|---|---|---|
+| `Invitation.tsx` | `opened`, `playing`, `musicAvailable` | ketiganya lahir dari satu klik yang sama: "Open Invitation" |
+| `Gallery.tsx` | `openIndex` (foto mana yang dibuka, atau null) | hanya galeri yang peduli |
+| `NavDrawer.tsx` | `open` | hanya menu yang peduli |
+
+Nanti bertambah dua: form RSVP dan Wishes memegang isian + status submit-nya masing-masing.
+
+**Ini alasan konkret project tidak butuh Context atau state manager** — tidak ada satu pun state yang perlu dibaca komponen yang berjauhan. Section-section undangan bahkan tidak punya state sama sekali; mereka Server Component yang masuk ke `Invitation` lewat `children`, jadi tidak ikut terbundel ke JavaScript browser.
 
 ---
 
@@ -115,21 +157,27 @@ Cover (gate) → Welcoming → Groom & Bride → Love Story → Counting the Day
 
 ## 6. Pemetaan asset (11 file, sudah diinspeksi visual satu per satu)
 
-| File | Isi | Dipakai di | Nama hasil optimasi |
-|---|---|---|---|
-| `background.jpg` | tekstur kain sutra putih | bg Welcoming + Wishes | `texture.webp` |
-| `1.png` | pasangan di yacht, sunset | gallery | `gallery-1.webp` |
-| `2.png` | pasangan di bar kayu, champagne | gallery | `gallery-2.webp` |
-| `3.png` | pasangan black-tie, dinding putih | Welcoming | `welcoming.webp` |
-| `4.png` | pasangan + 2 doberman (836×1881) | **Cover gate** + panel kiri desktop | `cover.webp` |
-| `5.png` | **groom solo** + doberman | kartu Groom | `groom.webp` |
-| `6.png` | **bride solo** + doberman | kartu Bride | `bride.webp` |
-| `7.png` | pasangan berdiri di jendela | gallery | `gallery-3.webp` |
-| `8.png` | pasangan duduk di jendela | gallery | `gallery-4.webp` |
-| `9.png` | bride di ambang jendela | gallery | `gallery-5.webp` |
-| `10.png` | pasangan berpelukan, backlit | bg Countdown + Footer | `moment.webp` |
+Pemetaan **final** (tiga di antaranya berubah dari rencana awal setelah dicek di layar — lihat catatan di bawah tabel):
 
-`assets/` mentah **di-gitignore** (19 MB). Yang di-commit hanya hasil WebP di `public/images/` (~2 MB).
+| Asli | Isi | Hasil optimasi | Dipakai di | Key di `config.images` |
+|---|---|---|---|---|
+| `4.png` | pasangan + 2 doberman (836×1881, potret tinggi) | `cover.webp` 50 KB | **Cover / gerbang** (HP & kolom desktop) | `cover` |
+| `10.png` | pasangan berpelukan, backlit jendela (lanskap) | `moment.webp` 66 KB | **panel kiri desktop** | `desktopPanel` |
+| `3.png` | pasangan black-tie, dinding putih | `welcoming.webp` 33 KB | Welcoming | `welcoming` |
+| `5.png` | **groom solo** + doberman | `groom.webp` 27 KB | kartu Groom | `couple.groom.photo` |
+| `6.png` | **bride solo** + doberman | `bride.webp` 26 KB | kartu Bride | `couple.bride.photo` |
+| `8.png` | pasangan duduk di jendela | `gallery-4.webp` 52 KB | **bg Countdown** + galeri | `countdown` |
+| `2.png` | pasangan di bar kayu gelap, champagne | `gallery-2.webp` 116 KB | **bg Footer** + galeri | `footer` |
+| `background.jpg` | tekstur kain sutra putih | `texture.webp` 10 KB | latar samar Welcoming (opacity 40%) | `texture` |
+| `1.png` | pasangan di yacht, sunset | `gallery-1.webp` 86 KB | galeri (foto lebar, 2 kolom) | `gallery[0]` |
+| `7.png` | pasangan berdiri di jendela | `gallery-3.webp` 59 KB | galeri | `gallery[2]` |
+| `9.png` | bride di ambang jendela | `gallery-5.webp` 58 KB | galeri | `gallery[4]` |
+
+**Perubahan dari rencana, beserta alasannya:**
+- **Panel kiri desktop: `cover.webp` → `moment.webp`.** Panel itu melebar, sedangkan `cover.webp` potret 836×1881. `object-cover` memotongnya sampai kepala pengantin hilang. Aturannya: **cocokkan rasio foto dengan bentuk wadahnya.** Foto lanskap untuk panel lebar, potret untuk kolom HP.
+- **Bg Countdown & Footer** dipilih ulang berdasarkan terang-gelapnya, bukan isinya: teks di keduanya berwarna terang, jadi butuh foto yang bagian tengahnya gelap. `gallery-2.webp` (bar kayu gelap) paling aman untuk footer.
+
+`assets/` mentah **di-gitignore** (18,6 MB). Yang di-commit hanya WebP di `public/images/` — **total 612 KB**.
 
 ---
 
@@ -197,6 +245,27 @@ Cara memeriksa yang benar: matikan transisinya dulu (`el.style.transition='none'
 
 Catatan lain: Tailwind v4 memakai properti CSS `translate`, bukan `transform`. Jadi `getComputedStyle(el).transform` akan selalu `"none"` untuk `translate-x-*` — yang harus dibaca `getComputedStyle(el).translate`.
 
+Dan: **klik lewat `computer` tool sering meleset di tab ini.** Yang berhasil untuk menguji alur adalah `element.click()` dari console. Konsekuensinya lihat catatan autoplay di bawah.
+
+### Autoplay audio — dan kenapa `play()` ada di handler klik
+
+Browser hanya mengizinkan audio berbunyi sebagai buah **gestur pengguna asli**. Dua akibatnya:
+
+1. **`play()` dipanggil langsung di dalam `handleOpen`, bukan di `useEffect`.** Kalau ditunda ke `useEffect`, sebagian browser (Safari terutama) sudah tidak menganggapnya bagian dari klik tadi. Ini alasan elemen `<audio>` tinggal di `Invitation.tsx`, bukan di `MusicToggle`.
+2. **Bunyi musik TIDAK BISA diverifikasi lewat otomasi di sini.** `element.click()` dari console bukan gestur asli, jadi `play()` selalu ditolak `NotAllowedError`. Yang bisa diverifikasi: berkas valid, tersaji benar (`200`, `audio/mpeg`, `Accept-Ranges`), elemen ter-mount dengan `preload="none"` tanpa mengunduh apa pun (`networkState: 1`), dan penolakan ditangani rapi sehingga tombol tetap bisa dipakai manual. **Sisanya harus dicek manusia.**
+
+### Spasi di JSX — cacat aksesibilitas yang tidak terlihat di layar
+
+JSX membuang whitespace yang mengandung baris baru. Jadi ini:
+
+```jsx
+{couple.groom.shortName}
+<span className="mx-2">and</span>
+{couple.bride.shortName}
+```
+
+menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, tapi pembaca layar melafalkannya sebagai satu kata. Perbaikannya `{" "}` eksplisit — sekarang terpusat di `components/ui/CoupleNames.tsx`. **Cara mendeteksinya: baca `element.innerText`, jangan lihat layar.**
+
 ---
 
 ## 10. Keputusan yang sudah diambil
@@ -207,7 +276,9 @@ Catatan lain: Tailwind v4 memakai properti CSS `translate`, bukan `transform`. J
 4. **`prisma` CLI di-pin ke `^7.10.0`** — npm sempat memasang `8.0.0-rc` (release candidate) yang tidak cocok dengan `@prisma/client` v7. RC tidak dipakai di project assessment.
 5. **Prisma diturunkan dari 7.10 ke 6.19.** Prisma 7 melarang `url` di `schema.prisma`; koneksi harus pindah ke `prisma.config.ts` DAN client harus dibungkus driver adapter (`@prisma/adapter-pg` + `pg`), dengan client hasil generate di folder terpisah yang harus diurus sendiri. Build gagal dengan error P1012. Prisma 6 memakai pola yang ada di semua tutorial: `url` di schema, `import { PrismaClient } from "@prisma/client"`, `new PrismaClient()`. Sesuai aturan §1, versi yang lebih mudah dijelaskan menang. Build sudah hijau.
 6. **Panel kiri desktop memakai `moment.webp` (foto lanskap), bukan `cover.webp`.** `cover.webp` berbentuk potret 836×1881; di panel yang melebar, `object-cover` memotongnya habis sampai kepala pengantin hilang. Foto lanskap cocok dengan bentuk wadahnya. `cover.webp` tetap dipakai untuk halaman sampul di HP, di mana rasio potretnya justru pas.
-7. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
+7. **Musik: "Romantic Piano Inspiring" oleh PaulYudin (Pixabay).** Dipilih user dari dua kandidat. **Pixabay Content License** — bebas komersial, atribusi *tidak* wajib; kredit tetap dicantumkan di footer karena pantas, bukan karena diharuskan. Sumber lain yang ditolak: Kevin MacLeod / Incompetech (CC BY 4.0) karena atribusinya wajib dan akan memaksa nama pihak ketiga muncul permanen di footer undangan.
+8. **`preload="none"` pada `<audio>`.** Berkasnya 4,4 MB — tujuh kali lipat seluruh foto undangan (612 KB). Dengan `"auto"`, tamu mengunduhnya begitu halaman dibuka padahal belum tentu melanjutkan.
+9. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
 
 ---
 
@@ -225,6 +296,55 @@ Catatan lain: Tailwind v4 memakai properti CSS `translate`, bukan `transform`. J
 - [ ] **Step 10 — Deploy** Vercel + Supabase
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
+
+### Riwayat commit
+
+| Commit | Isi |
+|---|---|
+| `4a4d68b` | scaffold Next.js + TS + Tailwind, schema Prisma, config acara |
+| `6f6003f` | CLAUDE.md |
+| `9337d96` | optimasi asset 18,6 MB → 0,57 MB |
+| `2dbdd7f` | tandai Step 2 selesai |
+| `6190bdc` | design system + kerangka split-panel desktop |
+| `b96efc1` | seluruh section, nav drawer, kontrol musik |
+| `a2efc20` | musik latar + pindahkan `play()` ke handler klik |
+
+---
+
+## 11b. Utang yang sengaja dibiarkan (harus lunas sebelum submit)
+
+| Hal | Kapan lunas |
+|---|---|
+| Tautan `#rsvp` dan `#wishes` di nav drawer belum punya tujuan — section-nya belum ada | Step 6 |
+| Belum ada satu pun test | Step 7 |
+| `README.md` masih bawaan `create-next-app` | Step 9 |
+| Bunyi musik belum pernah diverifikasi manusia | butuh user |
+| Belum pernah dijalankan dengan database sungguhan | Step 5, butuh kredensial Supabase |
+
+---
+
+## 11c. Alur data RSVP — bekal interview
+
+Pertanyaan yang hampir pasti muncul: *"coba jelaskan apa yang terjadi saat tamu mengisi RSVP."*
+
+```
+Tamu klik "Kirim"
+  └─> Rsvp.tsx: rsvpSchema.safeParse(isian)          ← validasi di BROWSER
+        gagal  -> tampilkan error per field, TIDAK ada request ke server
+        lolos  -> fetch("/api/rsvp", { method:"POST", body: JSON })
+                    └─> app/api/rsvp/route.ts        ← ini SERVER (Node), bukan browser
+                          rsvpSchema.safeParse(body) ← validasi LAGI di server
+                            gagal -> 400 { error, fieldErrors }
+                            lolos -> prisma.rsvp.create(...)
+                                       └─> Postgres di Supabase   ← data menetap di sini
+                                     201 { data }
+                  <- response
+        └─> setState -> React render ulang -> pesan sukses tampil
+```
+
+**Kenapa divalidasi dua kali?** Yang di browser untuk kenyamanan — tamu langsung tahu salahnya tanpa menunggu jaringan. Yang di server untuk keamanan — siapa pun bisa melewati browser dan mengirim POST langsung pakai `curl`, jadi server tidak boleh percaya kiriman client. Aturannya sendiri hanya ditulis **sekali** di `lib/schemas.ts`, sehingga keduanya mustahil berbeda.
+
+**Kenapa Route Handler dihitung backend?** `app/api/*/route.ts` berjalan di Node di server, memegang koneksi Prisma, dan **tidak pernah ikut terbundel ke JavaScript browser**. Batasnya tegas: kredensial database tidak pernah sampai ke tamu.
 
 ---
 
