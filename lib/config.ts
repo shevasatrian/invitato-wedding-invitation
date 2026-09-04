@@ -70,6 +70,20 @@ export const events = [
 /** Venue yang ditampilkan di peta (resepsi — acara utama untuk tamu undangan). */
 export const mapVenue = events[1];
 
+/**
+ * Foto yang dipakai di luar galeri.
+ * Semuanya hasil `npm run optimize-images` — lihat scripts/optimize-images.mjs.
+ */
+export const images = {
+  /** Halaman pembuka, sekaligus panel kiri di tampilan desktop. */
+  cover: "/images/cover.webp",
+  welcoming: "/images/welcoming.webp",
+  /** Latar belakang section Countdown dan Footer. */
+  moment: "/images/moment.webp",
+  /** Tekstur kain sutra, dipakai sebagai latar halus. */
+  texture: "/images/texture.webp",
+} as const;
+
 export const gallery = [
   { src: "/images/gallery-1.webp", alt: "Ricky dan Fellycia di atas kapal layar saat matahari terbenam" },
   { src: "/images/gallery-2.webp", alt: "Ricky dan Fellycia bersulang di ruang bar berpanel kayu" },
