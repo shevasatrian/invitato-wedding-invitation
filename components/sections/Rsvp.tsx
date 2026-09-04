@@ -237,7 +237,10 @@ export default function Rsvp() {
         )}
       </Reveal>
 
-      {summary && (
+      {/* Ringkasan baru ditampilkan setelah ada yang mengisi. Sebelum itu
+          barisnya berbunyi "0 hadir · 0 berhalangan · 0 orang", yang terbaca
+          seperti halaman rusak, bukan seperti undangan yang masih baru. */}
+      {summary && summary.attending + summary.notAttending > 0 && (
         <p className="mt-8 text-center font-ui text-xs tracking-[0.12em] text-stone uppercase">
           {summary.attending} hadir &middot; {summary.notAttending} berhalangan
           &middot; {summary.totalPax} orang

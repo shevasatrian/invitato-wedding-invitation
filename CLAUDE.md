@@ -346,6 +346,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `d683db5` | migrasi Prisma + verifikasi dengan Supabase |
 | `e765974` | 37 test Vitest |
 | `f8c1ce6` | perbaikan a11y: kontras, heading, fokus, bahasa |
+| `9035ede` | README |
 
 ---
 
@@ -354,7 +355,6 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | Hal | Kapan lunas |
 |---|---|
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |
-| Data uji (`Budi Santoso`, `Siti Rahayu`, `Rani Wijaya`) masih ada di database | hapus sebelum deploy, Step 10 |
 
 ---
 
