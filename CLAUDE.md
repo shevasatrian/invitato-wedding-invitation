@@ -291,7 +291,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
 - [x] **Step 3 — Design system.** Token warna + 4 font Google di `globals.css`/`layout.tsx`. Komponen: `Reveal` (IntersectionObserver), `Divider`, `Button` (solid/outline, bisa jadi tombol atau tautan), `Field` + `inputClasses`, `Section` + `SectionTitle`. `InvitationShell` = split-panel desktop (aside `sticky` + kolom 512px). Terverifikasi dengan pengukuran DOM, bukan screenshot: **390px** aside hidden, konten 319px, tanpa overflow horizontal · **768px** aside hidden, konten dikunci 480px · **1536px** aside tampil, main 512px. `tsc` + `eslint` + `next build` semua hijau.
 - [x] **Step 4 — Section statis.** Cover (gerbang + `?to=`) · Welcoming · CoupleProfile · Countdown · EventDetails · LocationMap · Gallery + Lightbox · Footer · NavDrawer · MusicToggle. `Invitation` memegang satu-satunya state halaman (`opened`); section tetap Server Component lewat `children`. Terverifikasi: countdown berdetak (112d 19j 32m, detik turun) · gerbang mengunci lalu melepas scroll · lightbox buka/panah/Escape · nav drawer buka-tutup + `inert` · 13 gambar termuat, 0 rusak · tanpa overflow horizontal di 390/768/1536 · `next build` hijau. **Menunggu file musik** — `MusicToggle` menyembunyikan diri sendiri kalau audio gagal dimuat, jadi halaman tetap normal sementara ini.
-- [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. **Jalur suksesnya (201) belum diuji** — butuh kredensial Supabase; tanpa `DATABASE_URL`, query Prisma gagal dan tertangkap rapi sebagai 500 sesuai kontrak.
+- [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. Kemudian diuji ulang dengan **Supabase sungguhan** setelah `prisma migrate dev --name init`: `POST /api/rsvp` → **201** baris tersimpan · **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` disimpan sebagai **0** — bukti server tidak percaya kiriman client · `GET /api/rsvp` → `{attending:1, notAttending:1, totalPax:3}` · `POST /api/wishes` → 201 dan langsung muncul di `GET`.
 - [x] **Step 6 — Form RSVP & Wishes.** Dua Client Component yang bentuknya sengaja dibuat identik, tanpa hook bersama — satu form cukup dibaca dari atas ke bawah. Terverifikasi lewat pengukuran DOM di browser: submit form kosong → 2 pesan error + `aria-invalid` + **0 request** (validasi browser benar-benar menahan) · hadir tapi 0 orang → tertahan juga, aturan lintas-field jalan di client · submit valid → **tepat satu** `fetch("/api/rsvp")`, server balas 500 (belum ada DB), pesannya tampil dan isian tamu tidak hilang · daftar wishes gagal dimuat → "Daftar ucapan sedang tidak bisa dimuat", bukan halaman rusak · 390px form 319px, 768px form 480px, tanpa overflow horizontal. `tsc` + `eslint` + `next build` hijau.
 - [ ] **Step 7 — Test Vitest**
 - [ ] **Step 8 — Polish & verifikasi** (375/768/1440px, a11y, `prefers-reduced-motion`)
@@ -313,6 +313,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `a2efc20` | musik latar + pindahkan `play()` ke handler klik |
 | `5bdec90` | catatan Step 3 & 4 di CLAUDE.md |
 | `595aa19` | backend: 4 route handler + koneksi Prisma |
+| `6727a0a` | form RSVP & Wishes tersambung API |
 
 ---
 
@@ -323,7 +324,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | Belum ada satu pun test | Step 7 |
 | `README.md` masih bawaan `create-next-app` | Step 9 |
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |
-| Belum pernah dijalankan dengan database sungguhan — jalur 400 & 405 sudah diuji, jalur 201 belum | butuh kredensial Supabase dari user |
+| Data uji (`Budi Santoso`, `Siti Rahayu`, `Rani Wijaya`) masih ada di database | hapus sebelum deploy, Step 10 |
 
 ---
 
@@ -358,7 +359,7 @@ Tamu klik "Kirim"
 |---|---|
 | **Musik latar** — SUDAH. "Romantic Piano Inspiring" oleh PaulYudin, Pixabay Content License, di `public/audio/backsound.mp3` (4,4 MB, 256 kbps). Kredit ada di footer + `lib/config.ts`. | selesai |
 | **Uji dengar musik** — playback nyata belum bisa diverifikasi di sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. Perlu user membuka `localhost:3000` lalu klik "Open Invitation" sendiri. | **belum** |
-| **Kredensial Supabase** — user buat project, kirim `DATABASE_URL` + `DIRECT_URL`. Jangan pernah di-commit, hanya `.env.example` | belum |
+| **Kredensial Supabase** — sudah. `.env` ada di disk (region `ap-northeast-2`, pooler `:6543` untuk runtime + `:5432` untuk migrate), terkonfirmasi diabaikan `.gitignore`. Migrasi `20260904124153_init` sudah diterapkan. | selesai |
 | **Push GitHub** — butuh `gh auth login` dari user. Minta konfirmasi sebelum push pertama | belum |
 
 ---
