@@ -101,6 +101,7 @@ prisma/schema.prisma      ✅ model Rsvp & Wish
 scripts/optimize-images.mjs ✅
 public/images/*.webp      ✅ 11 file, 612 KB
 public/audio/backsound.mp3 ✅ 4,4 MB
+README.md                 ✅ 11 bagian, deliverable PRD §1.9
 tests/                    ✅ 37 test: utils, schemas, route handler
 vitest.config.mts         ✅ alias @/ untuk test
 ```
@@ -148,8 +149,8 @@ Kelimanya `useState` biasa dan tidak ada satu pun yang dibaca komponen lain.
 
 ### Layout
 
-- **Mobile:** satu kolom, lebar konten maks ~480px
-- **Desktop ≥1024px:** panel kiri **fixed** (foto besar + "THE WEDDING OF" + ayat), panel kanan kolom ~480–560px yang scroll berisi seluruh undangan. Ini signature Invitato, wajib ditiru.
+- **Mobile:** satu kolom, lebar konten maks '480px
+- **Desktop ≥1024px:** panel kiri **fixed** (foto besar + "THE WEDDING OF" + ayat), panel kanan kolom '480–560px yang scroll berisi seluruh undangan. Ini signature Invitato, wajib ditiru.
 - **Motion:** fade-in + translate-Y saat section masuk viewport; nav drawer slide dari kanan
 
 ### Aturan kontras yang dipegang (hasil pengukuran, bukan perkiraan)
@@ -310,11 +311,19 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 6. **Panel kiri desktop memakai `moment.webp` (foto lanskap), bukan `cover.webp`.** `cover.webp` berbentuk potret 836×1881; di panel yang melebar, `object-cover` memotongnya habis sampai kepala pengantin hilang. Foto lanskap cocok dengan bentuk wadahnya. `cover.webp` tetap dipakai untuk halaman sampul di HP, di mana rasio potretnya justru pas.
 7. **Musik: "Romantic Piano Inspiring" oleh PaulYudin (Pixabay).** Dipilih user dari dua kandidat. **Pixabay Content License** — bebas komersial, atribusi *tidak* wajib; kredit tetap dicantumkan di footer karena pantas, bukan karena diharuskan. Sumber lain yang ditolak: Kevin MacLeod / Incompetech (CC BY 4.0) karena atribusinya wajib dan akan memaksa nama pihak ketiga muncul permanen di footer undangan.
 8. **`preload="none"` pada `<audio>`.** Berkasnya 4,4 MB — tujuh kali lipat seluruh foto undangan (612 KB). Dengan `"auto"`, tamu mengunduhnya begitu halaman dibuka padahal belum tentu melanjutkan.
-9. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
+9. **Ringkasan RSVP disembunyikan selama belum ada yang mengisi.** "0 hadir · 0 berhalangan · 0 orang" terbaca seperti halaman rusak, bukan seperti undangan baru. Ini contoh cacat yang **hanya muncul di keadaan kosong** — dan mustahil terlihat selama database masih berisi data uji. Pelajarannya: setelah membersihkan data uji, buka lagi halamannya.
+10. **Tidak ada script seed maupun script pembersih.** Untuk melihat atau menghapus isi tabel, cukup satu baris sekali pakai — Node 20+ bisa memuat `.env` sendiri:
+    ```bash
+    node --env-file=.env -e 'const {PrismaClient}=require("@prisma/client");const p=new PrismaClient();p.rsvp.findMany().then(r=>{console.log(r);return p.$disconnect()})'
+    ```
+    Menambah file script hanya untuk dipakai dua kali justru menambah yang harus dijelaskan. `npm run db:studio` juga tersedia untuk melihat isinya lewat browser.
+11. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
 
 ---
 
 ## 11. Progress
+
+**Keadaan sekarang (4 Sep 2026):** Step 1–9 selesai. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan. 37 test, `tsc`, `eslint`, `next build` hijau. Database kosong dan siap dilihat tamu. **Step 10 (deploy) ditahan atas permintaan user.** Yang benar-benar belum pernah diperiksa manusia hanya satu: bunyi musiknya.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
@@ -325,7 +334,8 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 7 — Test Vitest.** **37 test, 3 berkas, semua hijau dalam 0,7 detik** dan tidak satu pun menyentuh database. `tests/utils.test.ts` (15) — `getTimeLeft`, `pad`, `timeAgo`, link Calendar/Maps, `formatEventDate`; `now` selalu dikirim sebagai parameter supaya hasilnya tidak bergantung jam mesin. `tests/schemas.test.ts` (16) — bernilai ganda karena schema yang sama dipakai browser dan server. `tests/api-rsvp.test.ts` (6) — `vi.mock` mengganti `@/lib/prisma` dengan tiruan, sehingga bisa memeriksa **apa yang hendak disimpan server**: 201, 400 tanpa menyentuh database, body bukan JSON → 400, dan 500 yang tidak membocorkan pesan teknis. Test kuncinya sudah diuji balik dengan sengaja merusak kode (`guestCount: attendance === "ATTENDING" ? guestCount : 0` → `guestCount`): test **gagal** dengan "expected 9 to be +0", lalu kode dikembalikan. Test yang tidak pernah bisa gagal tidak membuktikan apa pun.
 - [x] **Step 8 — Polish & verifikasi.** Empat cacat aksesibilitas nyata ditemukan lewat pengukuran, lalu diperbaiki. **(1) Kontras** — 13 elemen di bawah ambang AA; sekarang **54 elemen diperiksa, 0 gagal** (aturannya di §5, plus token `stone` dinaikkan). **(2) Heading hilang** — section Wedding Details sama sekali tanpa heading padahal nav drawer menautkannya, jadi pengguna pembaca layar yang berpindah lewat daftar heading akan melewatinya; "Save the Date" kini `<h2>` dan nama acara `<h3>`, tampilan tidak berubah sedikit pun. **(3) Penanda fokus** — 8 kontrol (hamburger, 5 tautan nav, tombol musik, tombol tutup lightbox) tidak punya penanda fokus sama sekali; sekarang **26 dari 26** punya. **(4) Bahasa** — section RSVP & Kind Words berbahasa Indonesia di dalam halaman `lang="en"`, kini ditandai `lang="id"` lewat prop baru di `Section`, supaya pembaca layar tidak melafalkan "Kirim Konfirmasi" dengan aturan Inggris. Responsif diukur ulang: **375px** (scrollW 360, aside tersembunyi, form 304px) · **768px** (form dikunci 480px) · **1440px** (aside sticky 913px + kolom main 512px) — tanpa overflow horizontal di ketiganya. `prefers-reduced-motion` sudah ada sejak Step 3 dan terkonfirmasi sampai ke browser. 37 test, `tsc`, `eslint`, `next build` semua hijau.
 - [x] **Step 9 — README.** 11 bagian: cara jalan lokal · setup dua URL database beserta alasan port 6543 vs 5432 · daftar fitur dipetakan ke PRD §1.5 dan §1.6 · arsitektur + di mana state disimpan + kontrak API · diagram alur data RSVP **dengan perintah `curl` yang bisa dijalankan pembaca** untuk membuktikan sendiri bahwa server tidak percaya kiriman client · keputusan teknis termasuk tabel library yang sengaja ditolak dan alasan turun ke Prisma 6 · aksesibilitas & performa · testing · deploy · **disclosure AI** (dipisah: yang dibantu AI, yang tetap keputusan manusia, dan yang diverifikasi ulang — termasuk dua saran AI yang dibatalkan setelah diuji) · kredit. Empat klaim dikoreksi setelah dicek ke berkasnya: ukuran audio 4,4 MB, host pooler `aws-0`, dan tombol musik disembunyikan oleh `Invitation` (bukan oleh `MusicToggle` sendiri). Tautan demo & repo masih placeholder sampai Step 10.
-- [ ] **Step 10 — Deploy** Vercel + Supabase
+- [x] **Step 9b — Bersih-bersih data uji + perbaikan keadaan kosong.** Lima baris data uji (3 RSVP, 2 ucapan — semuanya buatan sesi verifikasi, dalam rentang 40 detik) dihapus dari Supabase; kedua tabel kini **0 baris** dan siap dilihat tamu. Justru setelah tabelnya kosong terlihat satu cacat yang mustahil tampak sebelumnya: ringkasan RSVP berbunyi **"0 HADIR · 0 BERHALANGAN · 0 ORANG"** kepada tamu pertama — terbaca seperti halaman rusak. Sekarang barisnya baru muncul kalau `attending + notAttending > 0`. **Kedua arah** diuji terhadap database sungguhan: tabel kosong → baris hilang; satu RSVP masuk → baris kembali berbunyi "1 HADIR · 0 BERHALANGAN · 2 ORANG"; baris uji itu lalu ikut dihapus.
+- [ ] **Step 10 — Deploy** Vercel + Supabase — **DITAHAN atas permintaan user.** Semua pekerjaan kode sudah selesai; yang tersisa hanya langkah yang melibatkan akun user (push GitHub, import Vercel, isi env di sana, `npm run db:deploy`). Jangan mulai tanpa aba-aba baru.
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
 
@@ -347,6 +357,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `e765974` | 37 test Vitest |
 | `f8c1ce6` | perbaikan a11y: kontras, heading, fokus, bahasa |
 | `9035ede` | README |
+| `df4bd6a` | sembunyikan ringkasan RSVP saat belum ada isian + hapus data uji |
 
 ---
 
@@ -354,7 +365,9 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| Bunyi musik belum pernah diverifikasi manusia | butuh user |
+| Bunyi musik belum pernah diverifikasi manusia — satu-satunya hal yang tidak bisa diverifikasi dari sini sama sekali | butuh user |
+| Tautan Demo & Repository di README masih placeholder | Step 10 |
+| `next build` belum pernah dijalankan di lingkungan Vercel | Step 10 |
 
 ---
 
@@ -390,7 +403,8 @@ Tamu klik "Kirim"
 | **Musik latar** — SUDAH. "Romantic Piano Inspiring" oleh PaulYudin, Pixabay Content License, di `public/audio/backsound.mp3` (4,4 MB, 256 kbps). Kredit ada di footer + `lib/config.ts`. | selesai |
 | **Uji dengar musik** — playback nyata belum bisa diverifikasi di sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. Perlu user membuka `localhost:3000` lalu klik "Open Invitation" sendiri. | **belum** |
 | **Kredensial Supabase** — sudah. `.env` ada di disk (region `ap-northeast-2`, pooler `:6543` untuk runtime + `:5432` untuk migrate), terkonfirmasi diabaikan `.gitignore`. Migrasi `20260904124153_init` sudah diterapkan. | selesai |
-| **Push GitHub** — butuh `gh auth login` dari user. Minta konfirmasi sebelum push pertama | belum |
+| **Push GitHub** — butuh `gh auth login` dari user (bisa dijalankan di sesi ini dengan mengetik `! gh auth login`). Minta konfirmasi sebelum push pertama. | belum, ditahan |
+| **Import ke Vercel** + isi `DATABASE_URL` & `DIRECT_URL` di dashboard-nya, lalu `npm run db:deploy`. | belum, ditahan |
 
 ---
 
@@ -400,7 +414,7 @@ Dikirim lewat https://forms.gle/goztBD5BejTkkhGU7
 
 1. Link GitHub repository
 2. Live deployment URL yang bisa dibuka
-3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** (Claude Code dipakai untuk riset referensi, scaffolding, implementasi — sebutkan bagiannya)
+3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** — **SUDAH**, lihat `README.md` (11 bagian). Yang masih kosong hanya dua tautan di paling atas: Demo dan Repository, keduanya baru ada setelah Step 10.
 
 Tambahan: ringkasan alur data (klik Submit → validasi client → `fetch` → route handler → Zod → Prisma → Postgres → response → UI) sebagai bekal interview.
 
