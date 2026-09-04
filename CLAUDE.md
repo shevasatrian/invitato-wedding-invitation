@@ -79,8 +79,8 @@ components/
     EventDetails.tsx      ✅ tanggal + 2 acara + See Location
     LocationMap.tsx       ✅ iframe Google Maps tanpa API key
     Gallery.tsx           ✅ "use client" — grid + lightbox
-    Rsvp.tsx              ⬜
-    Wishes.tsx            ⬜
+    Rsvp.tsx              ✅ "use client" — form + ringkasan angka dari GET
+    Wishes.tsx            ✅ "use client" — form + daftar ucapan
     Footer.tsx            ✅ ucapan terima kasih + kredit musik
   ui/
     Reveal.tsx            ✅ "use client" — IntersectionObserver
@@ -120,8 +120,10 @@ Hanya ada **tiga tempat** yang memegang state, dan semuanya `useState` biasa:
 | `Invitation.tsx` | `opened`, `playing`, `musicAvailable` | ketiganya lahir dari satu klik yang sama: "Open Invitation" |
 | `Gallery.tsx` | `openIndex` (foto mana yang dibuka, atau null) | hanya galeri yang peduli |
 | `NavDrawer.tsx` | `open` | hanya menu yang peduli |
+| `Rsvp.tsx` | `form`, `errors`, `status`, `serverError`, `summary` | milik satu form itu saja |
+| `Wishes.tsx` | `form`, `errors`, `sending`, `serverError`, `sent`, `wishes`, `listState` | milik satu form itu saja |
 
-Nanti bertambah dua: form RSVP dan Wishes memegang isian + status submit-nya masing-masing.
+Kelimanya `useState` biasa dan tidak ada satu pun yang dibaca komponen lain.
 
 **Ini alasan konkret project tidak butuh Context atau state manager** — tidak ada satu pun state yang perlu dibaca komponen yang berjauhan. Section-section undangan bahkan tidak punya state sama sekali; mereka Server Component yang masuk ke `Invitation` lewat `children`, jadi tidak ikut terbundel ke JavaScript browser.
 
@@ -290,7 +292,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 3 — Design system.** Token warna + 4 font Google di `globals.css`/`layout.tsx`. Komponen: `Reveal` (IntersectionObserver), `Divider`, `Button` (solid/outline, bisa jadi tombol atau tautan), `Field` + `inputClasses`, `Section` + `SectionTitle`. `InvitationShell` = split-panel desktop (aside `sticky` + kolom 512px). Terverifikasi dengan pengukuran DOM, bukan screenshot: **390px** aside hidden, konten 319px, tanpa overflow horizontal · **768px** aside hidden, konten dikunci 480px · **1536px** aside tampil, main 512px. `tsc` + `eslint` + `next build` semua hijau.
 - [x] **Step 4 — Section statis.** Cover (gerbang + `?to=`) · Welcoming · CoupleProfile · Countdown · EventDetails · LocationMap · Gallery + Lightbox · Footer · NavDrawer · MusicToggle. `Invitation` memegang satu-satunya state halaman (`opened`); section tetap Server Component lewat `children`. Terverifikasi: countdown berdetak (112d 19j 32m, detik turun) · gerbang mengunci lalu melepas scroll · lightbox buka/panah/Escape · nav drawer buka-tutup + `inert` · 13 gambar termuat, 0 rusak · tanpa overflow horizontal di 390/768/1536 · `next build` hijau. **Menunggu file musik** — `MusicToggle` menyembunyikan diri sendiri kalau audio gagal dimuat, jadi halaman tetap normal sementara ini.
 - [x] **Step 5 — Backend.** `lib/prisma.ts` (satu instance disimpan di `globalThis` supaya hot-reload tidak menumpuk koneksi) + 4 route handler berbentuk identik: `try` → `safeParse` → Prisma → `NextResponse`. Terverifikasi dengan `curl` ke dev server: `POST /api/wishes` isian terlalu pendek → **400** berisi `fieldErrors` per field · body bukan JSON → **400**, bukan 500, berkat `request.json().catch(() => null)` · `POST /api/rsvp` hadir tapi 0 orang → **400** "Jumlah orang minimal 1 jika Anda hadir" · `PUT /api/rsvp` → **405** dari Next · `next build` hijau dan kedua route terdaftar **ƒ (Dynamic)**, jadi tidak ikut di-prerender saat build. `tsc` + `eslint` 0 error. **Jalur suksesnya (201) belum diuji** — butuh kredensial Supabase; tanpa `DATABASE_URL`, query Prisma gagal dan tertangkap rapi sebagai 500 sesuai kontrak.
-- [ ] **Step 6 — Form RSVP & Wishes** tersambung API
+- [x] **Step 6 — Form RSVP & Wishes.** Dua Client Component yang bentuknya sengaja dibuat identik, tanpa hook bersama — satu form cukup dibaca dari atas ke bawah. Terverifikasi lewat pengukuran DOM di browser: submit form kosong → 2 pesan error + `aria-invalid` + **0 request** (validasi browser benar-benar menahan) · hadir tapi 0 orang → tertahan juga, aturan lintas-field jalan di client · submit valid → **tepat satu** `fetch("/api/rsvp")`, server balas 500 (belum ada DB), pesannya tampil dan isian tamu tidak hilang · daftar wishes gagal dimuat → "Daftar ucapan sedang tidak bisa dimuat", bukan halaman rusak · 390px form 319px, 768px form 480px, tanpa overflow horizontal. `tsc` + `eslint` + `next build` hijau.
 - [ ] **Step 7 — Test Vitest**
 - [ ] **Step 8 — Polish & verifikasi** (375/768/1440px, a11y, `prefers-reduced-motion`)
 - [ ] **Step 9 — README** (cara jalan, arsitektur, keputusan teknis, disclosure AI)
@@ -310,6 +312,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `b96efc1` | seluruh section, nav drawer, kontrol musik |
 | `a2efc20` | musik latar + pindahkan `play()` ke handler klik |
 | `5bdec90` | catatan Step 3 & 4 di CLAUDE.md |
+| `595aa19` | backend: 4 route handler + koneksi Prisma |
 
 ---
 
@@ -317,7 +320,6 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| Tautan `#rsvp` dan `#wishes` di nav drawer belum punya tujuan — section-nya belum ada | Step 6 |
 | Belum ada satu pun test | Step 7 |
 | `README.md` masih bawaan `create-next-app` | Step 9 |
 | Bunyi musik belum pernah diverifikasi manusia | butuh user |

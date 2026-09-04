@@ -5,7 +5,9 @@ import CoupleProfile from "@/components/sections/CoupleProfile";
 import Countdown from "@/components/sections/Countdown";
 import EventDetails from "@/components/sections/EventDetails";
 import LocationMap from "@/components/sections/LocationMap";
+import Rsvp from "@/components/sections/Rsvp";
 import Gallery from "@/components/sections/Gallery";
+import Wishes from "@/components/sections/Wishes";
 import Footer from "@/components/sections/Footer";
 
 /**
@@ -31,7 +33,9 @@ export default async function Home({
         <Countdown />
         <EventDetails />
         <LocationMap />
+        <Rsvp />
         <Gallery />
+        <Wishes />
         <Footer />
       </Invitation>
     </InvitationShell>
