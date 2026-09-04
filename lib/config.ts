@@ -75,8 +75,14 @@ export const mapVenue = events[1];
  * Semuanya hasil `npm run optimize-images` — lihat scripts/optimize-images.mjs.
  */
 export const images = {
-  /** Halaman pembuka, sekaligus panel kiri di tampilan desktop. */
+  /** Halaman pembuka. Potret tinggi, pas untuk layar HP. */
   cover: "/images/cover.webp",
+  /**
+   * Panel dekoratif di kiri pada tampilan desktop.
+   * Sengaja memakai foto lanskap: panel ini melebar, sedangkan cover.webp
+   * berbentuk potret tinggi (836x1881) yang akan terpotong habis di sana.
+   */
+  desktopPanel: "/images/moment.webp",
   welcoming: "/images/welcoming.webp",
   /** Latar belakang section Countdown dan Footer. */
   moment: "/images/moment.webp",

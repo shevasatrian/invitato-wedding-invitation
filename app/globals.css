@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Design token.
+ *
+ * Warna diambil langsung dari template referensi Invitato (Ricky & Fellycia)
+ * dengan membaca computed style halaman aslinya, bukan dikira-kira.
+ *
+ * Tailwind v4 otomatis membuat utility dari setiap token di sini:
+ *   --color-ink       -> bg-ink, text-ink, border-ink
+ *   --font-display    -> font-display
+ */
+@theme {
+  --color-ink: #2c3f4e; /* teks utama, nav drawer */
+  --color-mist: #d5dade; /* latar section utama (biru-abu lembut) */
+  --color-cream: #faf8f4; /* latar alternatif */
+  --color-stone: #737373; /* tombol, teks sekunder */
+  --color-charcoal: #323030; /* overlay gelap, footer */
+
+  /* Font di-load di app/layout.tsx lewat next/font. */
+  --font-display: var(--font-marcellus), Georgia, serif;
+  --font-body: var(--font-cormorant), Georgia, serif;
+  --font-ui: var(--font-montserrat), system-ui, sans-serif;
+  --font-script: var(--font-parisienne), cursive;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-mist);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  /* Foto pada template ini banyak memakai potret gelap; antialias membuat
+     teks serif tipis di atasnya tetap terbaca. */
+  -webkit-font-smoothing: antialiased;
+}
+
+/**
+ * Hormati pengaturan sistem pengguna. Sebagian orang merasa pusing dengan
+ * animasi; semua transisi dimatikan, tapi kontennya tetap tampil utuh.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/**
+ * Dipasang di <body> selama halaman sampul belum dibuka, supaya tamu tidak
+ * bisa men-scroll ke isi undangan sebelum menekan "Open Invitation".
+ */
+.scroll-locked {
+  overflow: hidden;
 }

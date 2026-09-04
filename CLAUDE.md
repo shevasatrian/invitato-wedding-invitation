@@ -24,7 +24,7 @@ Sumber requirement: `Website_Invitation_Hometask.docx` (di disk, sengaja tidak d
 
 ## 2. Stack
 
-Next.js 16.3.4 · React 19.2.8 · TypeScript 5 (strict) · Tailwind 4 · Zod 4 · Prisma 7.10 · Vitest 4 · sharp
+Next.js 16.3.4 · React 19.2.8 · TypeScript 5 (strict) · Tailwind 4 · Zod 4 · **Prisma 6.19** · Vitest 4 · sharp
 Deploy: **Vercel + Supabase Postgres**
 
 ### Yang SENGAJA tidak dipakai (jangan tambahkan tanpa diskusi)
@@ -37,6 +37,7 @@ Deploy: **Vercel + Supabase Postgres**
 | Cursor pagination | konsep cursor butuh penjelasan panjang | `findMany({ orderBy: desc, take: 100 })` |
 | Context / state manager | tidak dibutuhkan di skala ini | state lokal di komponen pemakainya |
 | Generator file `.ics` | kode parsing yang tidak menarik | link Google Calendar |
+| **Prisma 7** | wajib `prisma.config.ts` + driver adapter + path client hasil generate — 3 konsep tambahan | **Prisma 6**: `url` di schema, `new PrismaClient()`, import dari `@prisma/client` |
 
 ---
 
@@ -167,6 +168,28 @@ Validasi: `guestName` 2–80 char · `guestCount` int 1–10 kalau Hadir, dipaks
 - **`LayoutProps<"/">`** bawaan template Next 16 butuh `.next/types` hasil build. Sudah diganti dengan tipe eksplisit `{ children: React.ReactNode }` — lebih mudah dibaca juga.
 - **ESLint** harus mengabaikan `.claude/**` (skill scripts bukan kode aplikasi).
 
+### Next.js 16 — breaking change yang mengenai project ini
+
+Dokumentasi versi terpasang ada di `node_modules/next/dist/docs/`. Yang relevan:
+
+- **`searchParams` sekarang Promise.** Fitur personalisasi nama tamu (`?to=`) WAJIB `await props.searchParams`. Akses sinkron sudah dihapus total di v16.
+- **`data-scroll-behavior="smooth"` di `<html>`** diperlukan agar Next mematikan sementara `scroll-behavior: smooth` saat pindah halaman. Sudah dipasang di `app/layout.tsx`.
+- **`next dev` otomatis menambahkan blok `<!-- BEGIN:nextjs-agent-rules -->` di akhir file ini.** Blok itu ditulis ulang setiap kali dev server jalan — jadi ikut di-commit saja supaya working tree tetap bersih. Bisa dimatikan lewat `agentRules: false` di `next.config.ts`.
+
+### Cara cek tampilan responsif di mesin ini
+
+`resize_window` **tidak mengubah viewport halaman** di sini — `innerWidth` mentok di 1536 berapa pun ukuran jendelanya. Cara yang berhasil: suntik iframe berukuran HP lewat console, karena media query mengikuti viewport iframe-nya.
+
+```js
+document.body.innerHTML =
+  '<iframe src="/" style="width:390px;height:800px;border:0"></iframe>' +
+  '<iframe src="/" style="width:768px;height:800px;border:0"></iframe>';
+```
+
+Lalu ukur dari luar: `iframe.contentWindow.innerWidth`, `getComputedStyle(aside).display`, `documentElement.scrollWidth <= innerWidth` (cek tidak ada overflow horizontal).
+
+**Catatan penting:** tangkapan layar Chrome di sini sering menampilkan frame basi — teks terlihat pucat/hilang padahal DOM-nya benar. Jangan percaya screenshot untuk menilai bug; ukur `getComputedStyle` dulu. Sudah dua kali `Reveal` disangka rusak padahal `opacity: 1`.
+
 ---
 
 ## 10. Keputusan yang sudah diambil
@@ -175,7 +198,9 @@ Validasi: `guestName` 2–80 char · `guestCount` int 1–10 kalau Hadir, dipaks
 2. **Konten pakai Ricky & Fellycia** (ikut referensi) supaya reviewer bisa membandingkan side-by-side.
 3. **Nama orang tua diisi sendiri** — referensi cuma placeholder "Mr. Parent Man". Dipakai: Hendra & Lianawati Ravanelli, Bambang Pratama & Sylvia Indriyani. Ubah di `lib/config.ts`.
 4. **`prisma` CLI di-pin ke `^7.10.0`** — npm sempat memasang `8.0.0-rc` (release candidate) yang tidak cocok dengan `@prisma/client` v7. RC tidak dipakai di project assessment.
-5. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
+5. **Prisma diturunkan dari 7.10 ke 6.19.** Prisma 7 melarang `url` di `schema.prisma`; koneksi harus pindah ke `prisma.config.ts` DAN client harus dibungkus driver adapter (`@prisma/adapter-pg` + `pg`), dengan client hasil generate di folder terpisah yang harus diurus sendiri. Build gagal dengan error P1012. Prisma 6 memakai pola yang ada di semua tutorial: `url` di schema, `import { PrismaClient } from "@prisma/client"`, `new PrismaClient()`. Sesuai aturan §1, versi yang lebih mudah dijelaskan menang. Build sudah hijau.
+6. **Panel kiri desktop memakai `moment.webp` (foto lanskap), bukan `cover.webp`.** `cover.webp` berbentuk potret 836×1881; di panel yang melebar, `object-cover` memotongnya habis sampai kepala pengantin hilang. Foto lanskap cocok dengan bentuk wadahnya. `cover.webp` tetap dipakai untuk halaman sampul di HP, di mana rasio potretnya justru pas.
+7. **`.claude/`, `skills-lock.json`, `*.docx` di-gitignore.** Dua yang pertama tooling, bukan karya user. PRD `.docx` adalah dokumen internal Invitato dan dokumennya sendiri melarang publikasi di luar proses seleksi. File tetap ada di disk.
 
 ---
 
@@ -183,7 +208,7 @@ Validasi: `guestName` 2–80 char · `guestCount` int 1–10 kalau Hadir, dipaks
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
-- [ ] **Step 3 — Design system** (token, font, `Reveal`/`Divider`/`Button`/`Field`, shell split-panel)
+- [x] **Step 3 — Design system.** Token warna + 4 font Google di `globals.css`/`layout.tsx`. Komponen: `Reveal` (IntersectionObserver), `Divider`, `Button` (solid/outline, bisa jadi tombol atau tautan), `Field` + `inputClasses`, `Section` + `SectionTitle`. `InvitationShell` = split-panel desktop (aside `sticky` + kolom 512px). Terverifikasi dengan pengukuran DOM, bukan screenshot: **390px** aside hidden, konten 319px, tanpa overflow horizontal · **768px** aside hidden, konten dikunci 480px · **1536px** aside tampil, main 512px. `tsc` + `eslint` + `next build` semua hijau.
 - [ ] **Step 4 — Section statis** (Cover → Footer + nav drawer + music toggle)
 - [ ] **Step 5 — Backend** (`lib/prisma.ts`, 4 route handler)
 - [ ] **Step 6 — Form RSVP & Wishes** tersambung API
@@ -215,3 +240,13 @@ Dikirim lewat https://forms.gle/goztBD5BejTkkhGU7
 3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** (Claude Code dipakai untuk riset referensi, scaffolding, implementasi — sebutkan bagiannya)
 
 Tambahan: ringkasan alur data (klik Submit → validasi client → `fetch` → route handler → Zod → Prisma → Postgres → response → UI) sebagai bekal interview.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
