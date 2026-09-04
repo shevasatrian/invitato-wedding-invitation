@@ -188,7 +188,14 @@ document.body.innerHTML =
 
 Lalu ukur dari luar: `iframe.contentWindow.innerWidth`, `getComputedStyle(aside).display`, `documentElement.scrollWidth <= innerWidth` (cek tidak ada overflow horizontal).
 
-**Catatan penting:** tangkapan layar Chrome di sini sering menampilkan frame basi — teks terlihat pucat/hilang padahal DOM-nya benar. Jangan percaya screenshot untuk menilai bug; ukur `getComputedStyle` dulu. Sudah dua kali `Reveal` disangka rusak padahal `opacity: 1`.
+**Catatan penting:** tab yang dikendalikan otomatis di sini **tidak di-composite**. Akibatnya ada dua:
+
+1. Tangkapan layar sering menampilkan frame basi — teks terlihat pucat/hilang padahal DOM-nya benar. Sudah dua kali `Reveal` disangka rusak padahal `opacity: 1`.
+2. **Transisi CSS pada properti yang dianimasikan compositor (`translate`, `opacity`, `transform`) macet di `playState: "running"` dan tidak pernah selesai.** NavDrawer sempat disangka tidak membuka karena ini.
+
+Cara memeriksa yang benar: matikan transisinya dulu (`el.style.transition='none'`), baru ukur posisi akhirnya. Dan **jangan menilai bug dari screenshot** — selalu ukur lewat `getComputedStyle` / `getBoundingClientRect`.
+
+Catatan lain: Tailwind v4 memakai properti CSS `translate`, bukan `transform`. Jadi `getComputedStyle(el).transform` akan selalu `"none"` untuk `translate-x-*` — yang harus dibaca `getComputedStyle(el).translate`.
 
 ---
 
@@ -209,7 +216,7 @@ Lalu ukur dari luar: `iframe.contentWindow.innerWidth`, `getComputedStyle(aside)
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
 - [x] **Step 3 — Design system.** Token warna + 4 font Google di `globals.css`/`layout.tsx`. Komponen: `Reveal` (IntersectionObserver), `Divider`, `Button` (solid/outline, bisa jadi tombol atau tautan), `Field` + `inputClasses`, `Section` + `SectionTitle`. `InvitationShell` = split-panel desktop (aside `sticky` + kolom 512px). Terverifikasi dengan pengukuran DOM, bukan screenshot: **390px** aside hidden, konten 319px, tanpa overflow horizontal · **768px** aside hidden, konten dikunci 480px · **1536px** aside tampil, main 512px. `tsc` + `eslint` + `next build` semua hijau.
-- [ ] **Step 4 — Section statis** (Cover → Footer + nav drawer + music toggle)
+- [x] **Step 4 — Section statis.** Cover (gerbang + `?to=`) · Welcoming · CoupleProfile · Countdown · EventDetails · LocationMap · Gallery + Lightbox · Footer · NavDrawer · MusicToggle. `Invitation` memegang satu-satunya state halaman (`opened`); section tetap Server Component lewat `children`. Terverifikasi: countdown berdetak (112d 19j 32m, detik turun) · gerbang mengunci lalu melepas scroll · lightbox buka/panah/Escape · nav drawer buka-tutup + `inert` · 13 gambar termuat, 0 rusak · tanpa overflow horizontal di 390/768/1536 · `next build` hijau. **Menunggu file musik** — `MusicToggle` menyembunyikan diri sendiri kalau audio gagal dimuat, jadi halaman tetap normal sementara ini.
 - [ ] **Step 5 — Backend** (`lib/prisma.ts`, 4 route handler)
 - [ ] **Step 6 — Form RSVP & Wishes** tersambung API
 - [ ] **Step 7 — Test Vitest**

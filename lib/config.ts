@@ -84,8 +84,10 @@ export const images = {
    */
   desktopPanel: "/images/moment.webp",
   welcoming: "/images/welcoming.webp",
-  /** Latar belakang section Countdown dan Footer. */
-  moment: "/images/moment.webp",
+  /** Latar belakang section hitung mundur. Nuansa hangat, teks krem. */
+  countdown: "/images/gallery-4.webp",
+  /** Latar belakang footer. Sengaja foto gelap agar teks putih terbaca. */
+  footer: "/images/gallery-2.webp",
   /** Tekstur kain sutra, dipakai sebagai latar halus. */
   texture: "/images/texture.webp",
 } as const;

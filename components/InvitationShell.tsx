@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { couple, verse, images } from "@/lib/config";
+import CoupleNames from "@/components/ui/CoupleNames";
+import { verse, images } from "@/lib/config";
 
 /**
  * Kerangka halaman, meniru cara template Invitato tampil di desktop.
@@ -65,11 +66,7 @@ function DesktopPanel() {
         </p>
 
         <p className="mt-5 font-display text-5xl tracking-[0.06em] text-cream uppercase xl:text-6xl">
-          {couple.groom.shortName}
-          <span className="mx-3 font-script text-4xl normal-case xl:text-5xl">
-            and
-          </span>
-          {couple.bride.shortName}
+          <CoupleNames andClassName="mx-3 text-4xl xl:text-5xl" />
         </p>
 
         <p className="mt-8 max-w-md font-body text-lg leading-relaxed text-cream/80 italic">
