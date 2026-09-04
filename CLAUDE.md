@@ -232,7 +232,8 @@ Catatan lain: Tailwind v4 memakai properti CSS `translate`, bukan `transform`. J
 
 | Hal | Status |
 |---|---|
-| **Musik latar** — tidak ada file audio di asset pack. Saya cari track CC0, **kirim link untuk approval dulu**, baru download ke `public/audio/` | belum |
+| **Musik latar** — SUDAH. "Romantic Piano Inspiring" oleh PaulYudin, Pixabay Content License, di `public/audio/backsound.mp3` (4,4 MB, 256 kbps). Kredit ada di footer + `lib/config.ts`. | selesai |
+| **Uji dengar musik** — playback nyata belum bisa diverifikasi di sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. Perlu user membuka `localhost:3000` lalu klik "Open Invitation" sendiri. | **belum** |
 | **Kredensial Supabase** — user buat project, kirim `DATABASE_URL` + `DIRECT_URL`. Jangan pernah di-commit, hanya `.env.example` | belum |
 | **Push GitHub** — butuh `gh auth login` dari user. Minta konfirmasi sebelum push pertama | belum |
 

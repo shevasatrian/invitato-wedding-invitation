@@ -109,10 +109,19 @@ export const navLinks = [
   { id: "wishes", label: "Kind Words" },
 ] as const;
 
+/**
+ * Musik latar.
+ *
+ * "Romantic Piano Inspiring" oleh PaulYudin, diunduh dari Pixabay:
+ * https://pixabay.com/music/wedding-romantic-piano-inspiring-155910/
+ *
+ * Pixabay Content License membolehkan penggunaan komersial dan tidak
+ * mewajibkan atribusi. Kredit di bawah tetap ditampilkan karena mencantumkan
+ * sumber karya orang lain adalah hal yang pantas, bukan karena diharuskan.
+ */
 export const music = {
   src: "/audio/backsound.mp3",
-  /** Ditampilkan di footer sebagai atribusi lisensi. */
-  credit: "",
+  credit: "Song by PaulYudin — Romantic Piano Inspiring",
 } as const;
 
 export const site = {
