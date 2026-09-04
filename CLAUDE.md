@@ -182,7 +182,7 @@ Validasi: `guestName` 2–80 char · `guestCount` int 1–10 kalau Hadir, dipaks
 ## 11. Progress
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
-- [ ] **Step 2 — Optimasi asset** (`scripts/optimize-images.mjs`, 19 MB → ~2 MB)
+- [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
 - [ ] **Step 3 — Design system** (token, font, `Reveal`/`Divider`/`Button`/`Field`, shell split-panel)
 - [ ] **Step 4 — Section statis** (Cover → Footer + nav drawer + music toggle)
 - [ ] **Step 5 — Backend** (`lib/prisma.ts`, 4 route handler)
