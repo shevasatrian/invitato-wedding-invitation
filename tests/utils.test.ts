@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatEventDate,
   invitationUrl,
+  languageHref,
   getTimeLeft,
   googleCalendarUrl,
   mapEmbedUrl,
@@ -189,6 +190,30 @@ describe("invitationUrl", () => {
   it("tidak pernah menghasilkan URL relatif — QR harus bisa dibuka dari luar", () => {
     for (const url of [invitationUrl(), invitationUrl("Budi"), invitationUrl("Budi", "id")]) {
       expect(url.startsWith("https://")).toBe(true);
+    }
+  });
+});
+
+describe("languageHref", () => {
+  it("dari Inggris menuju Indonesia, dan sebaliknya", () => {
+    expect(languageHref("id")).toBe("/?lang=id");
+    expect(languageHref("en")).toBe("/");
+  });
+
+  it("mempertahankan nama tamu di kedua arah", () => {
+    expect(languageHref("id", "Budi Santoso")).toBe("/?to=Budi+Santoso&lang=id");
+    expect(languageHref("en", "Budi Santoso")).toBe("/?to=Budi+Santoso");
+  });
+
+  it("tidak pernah menulis lang=en, karena Inggris adalah default", () => {
+    for (const href of [languageHref("en"), languageHref("en", "Budi")]) {
+      expect(href).not.toContain("lang=");
+    }
+  });
+
+  it("selalu relatif — ini tautan dalam halaman, bukan isi QR", () => {
+    for (const href of [languageHref("id"), languageHref("id", "Budi"), languageHref("en")]) {
+      expect(href.startsWith("/")).toBe(true);
     }
   });
 });

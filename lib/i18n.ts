@@ -38,8 +38,10 @@ const en = {
 
   language: {
     label: "Language",
-    /** Nama bahasa yang SEDANG TIDAK dipakai — itulah teks tombolnya. */
-    other: "Bahasa Indonesia",
+    /** Nama lengkap tiap bahasa, dipakai untuk aria-label tombol. */
+    names: { en: "English", id: "Bahasa Indonesia" },
+    switchTo: "Switch to {lang}",
+    current: "Current language: {lang}",
   },
 
   meta: {
@@ -215,7 +217,9 @@ const id: Dict = {
 
   language: {
     label: "Bahasa",
-    other: "English",
+    names: { en: "English", id: "Bahasa Indonesia" },
+    switchTo: "Ganti ke {lang}",
+    current: "Bahasa saat ini: {lang}",
   },
 
   meta: {
@@ -365,6 +369,15 @@ di pernikahan kami`,
 };
 
 export const dictionaries: Record<Lang, Dict> = { en, id };
+
+/**
+ * Label pendek pada tombol bahasa. Bukan kalimat melainkan kode, jadi
+ * bunyinya sama di bahasa mana pun dan tidak perlu masuk kamus.
+ */
+export const languageCodes: Record<Lang, string> = { en: "EN", id: "ID" };
+
+/** Urutan tampil pada tombol bahasa. */
+export const languages: Lang[] = ["en", "id"];
 
 /** Apa pun selain "id" dianggap Inggris — termasuk nilai kosong dan asing. */
 export function pickLang(raw?: string): Lang {

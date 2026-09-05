@@ -132,3 +132,20 @@ export function invitationUrl(guestName?: string, lang: Lang = "en"): string {
 
   return params.size > 0 ? `${site.url}/?${params}` : site.url;
 }
+
+/**
+ * Tautan menuju halaman ini dalam bahasa `target`.
+ *
+ * Relatif, bukan absolut — ini tautan dalam halaman. Bandingkan dengan
+ * `invitationUrl` di atas yang WAJIB absolut karena isinya dibaca kamera.
+ *
+ * Inggris adalah bahasa default, jadi `lang=en` tidak pernah ditulis: URL
+ * tidak menumpuk parameter yang tidak mengubah apa pun.
+ */
+export function languageHref(target: Lang, guestName?: string): string {
+  const params = new URLSearchParams();
+  if (guestName) params.set("to", guestName);
+  if (target === "id") params.set("lang", "id");
+
+  return params.size > 0 ? `/?${params}` : "/";
+}

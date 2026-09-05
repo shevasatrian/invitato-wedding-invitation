@@ -102,17 +102,12 @@ export default function NavDrawer({
           {/* Berpindah bahasa dari sini aman: state `opened` dan posisi
               scroll terbukti bertahan (diukur, bukan diduga — lihat
               docs/superpowers/plans, Task 1). */}
-          <p className="mt-10 text-right font-ui text-[0.6rem] tracking-[0.25em] text-white/60 uppercase">
-            {t.language.label}
-          </p>
-          <p className="mt-2 text-right">
-            <LanguageToggle
-              lang={lang}
-              guestName={guestName}
-              t={t}
-              className="font-display text-base tracking-[0.12em] text-white/90 underline underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            />
-          </p>
+          <div className="mt-10 flex items-center justify-end gap-3">
+            <span className="font-ui text-[0.6rem] tracking-[0.25em] text-white/60 uppercase">
+              {t.language.label}
+            </span>
+            <LanguageToggle lang={lang} guestName={guestName} t={t} />
+          </div>
         </div>
 
         <p className="text-right font-body text-xs text-white/45">

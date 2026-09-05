@@ -160,7 +160,7 @@ tests/                    50 test
 Mekanismenya sama persis dengan `?to=` yang sudah dipakai untuk nama tamu — tidak ada konsep baru yang perlu dipelajari. Akibat langsungnya:
 
 - **Section tetap Server Component.** Kamus diteruskan lewat prop, jadi tidak ada satu byte pun tambahan JavaScript yang diunduh tamu. Diperiksa: kata `qrcode` dan `isDark` tidak muncul di satu berkas pun dalam `.next/static/chunks`.
-- **Tombolnya cuma tautan.** `components/ui/LanguageToggle.tsx` tidak menyimpan apa pun; ia membangun URL yang sama dengan `lang` dibalik, dan `?to=` ikut dipertahankan.
+- **Tombolnya cuma tautan.** `components/ui/LanguageToggle.tsx` tidak menyimpan apa pun. Bentuknya dua segmen berdampingan `EN | ID`: yang aktif sebuah `<span aria-current="true">`, yang tidak aktif sebuah `<Link>` menuju URL yang sama dengan `lang` dibalik — `?to=` selalu ikut dipertahankan. Segmen aktif sengaja bukan tautan, karena menautkannya ke halaman yang sedang dibuka hanya memberi tamu sesuatu untuk diklik yang tidak mengubah apa pun.
 - **Pilihan bahasa ikut terbawa saat tautan dibagikan** dan bisa di-bookmark.
 - **Tidak perlu Context.** Kalau bahasa disimpan sebagai state client, setiap section harus jadi Client Component untuk bisa membacanya.
 
@@ -305,11 +305,11 @@ Diukur pada enam kombinasi — 375 / 768 / 1440 px dikali dua bahasa — dengan 
 npm run test
 ```
 
-**50 test, 4 berkas, ±1 detik, tidak satu pun menyentuh database.**
+**54 test, 4 berkas, ±1 detik, tidak satu pun menyentuh database.**
 
 | Berkas | Isi |
 |---|---|
-| `tests/utils.test.ts` | hitung mundur, waktu relatif, link Calendar & Maps, format tanggal berlokal, pembangun URL isi QR |
+| `tests/utils.test.ts` | hitung mundur, waktu relatif, link Calendar & Maps, format tanggal berlokal, pembangun URL isi QR, pembangun tautan ganti bahasa |
 | `tests/schemas.test.ts` | seluruh aturan validasi RSVP & ucapan, termasuk aturan lintas-field dan pesan yang mengikuti kamus |
 | `tests/i18n.test.ts` | pemilihan bahasa dari URL, kesepadanan kedua kamus, tidak ada nilai kosong |
 | `tests/api-rsvp.test.ts` | route handler dengan Prisma yang ditiru `vi.mock` |

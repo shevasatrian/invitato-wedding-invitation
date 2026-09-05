@@ -71,12 +71,7 @@ export default function Cover({
           {t.cover.open}
         </Button>
 
-        <LanguageToggle
-          lang={lang}
-          guestName={guestName}
-          t={t}
-          className="mt-6 font-ui text-[0.6rem] tracking-[0.2em] text-white/85 uppercase underline underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-        />
+        <LanguageToggle lang={lang} guestName={guestName} t={t} className="mt-7" />
       </div>
     </section>
   );

@@ -97,7 +97,7 @@ components/
     Lightbox.tsx          ✅ "use client" — modal foto, Esc + panah
     NavDrawer.tsx         ✅ "use client" — menu geser, inert saat tutup
     MusicToggle.tsx       ✅ tombol tampilan murni, tanpa state
-    LanguageToggle.tsx    ✅ tautan ke URL yang sama dengan lang dibalik
+    LanguageToggle.tsx    ✅ segmen EN | ID, yang aktif span, yang lain Link
 
 lib/config.ts             ✅ FAKTA acara (tanggal, alamat, foto, nama)
 lib/i18n.ts               ✅ KALIMAT acara dua bahasa + pickLang
@@ -112,7 +112,7 @@ app/icon.png              ✅ ornamen belah ketupat, ikon tab (512px)
 app/apple-icon.png        ✅ ikon layar utama iOS (180px)
 app/opengraph-image.jpg   ✅ pratinjau tautan 1200x630, dari moment.webp
 README.md                 ✅ 11 bagian, deliverable PRD §1.9
-tests/                    ✅ 50 test: utils, schemas, i18n, route handler
+tests/                    ✅ 54 test: utils, schemas, i18n, route handler
 vitest.config.mts         ✅ alias @/ untuk test
 ```
 
@@ -360,7 +360,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 ## 11. Progress
 
-**Keadaan sekarang (5 Sep 2026):** Step 1–12 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 50 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi.** Step 12 menambahkan toggle bahasa EN/ID dan section Access Card di luar kebutuhan wajib. Satu-satunya hal yang belum pernah dilihat manusia: **tampilan kartu Access Card** — screenshot gagal dua kali karena tab otomatis di sini tidak di-composite.
+**Keadaan sekarang (5 Sep 2026):** Step 1–12 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 54 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi.** Step 12 menambahkan toggle bahasa EN/ID dan section Access Card di luar kebutuhan wajib. Satu-satunya hal yang belum pernah dilihat manusia: **tampilan kartu Access Card** — screenshot gagal dua kali karena tab otomatis di sini tidak di-composite.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
