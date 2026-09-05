@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { rsvpSchema, toFieldErrors } from "@/lib/schemas";
+import { dictionaries } from "@/lib/i18n";
 
 /**
  * Endpoint konfirmasi kehadiran.
@@ -19,7 +20,10 @@ export async function POST(request: Request) {
     // gagal di safeParse, jadi jawabannya 400 (salah client), bukan 500.
     const body = await request.json().catch(() => null);
 
-    const parsed = rsvpSchema.safeParse(body);
+    // Pesan server sengaja tetap satu bahasa: tamu tidak pernah melihatnya,
+    // karena browser sudah memvalidasi lebih dulu dengan aturan yang sama.
+    // Yang sampai ke sini hanya kiriman yang melewati browser, misalnya curl.
+    const parsed = rsvpSchema(dictionaries.id.errors).safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         {

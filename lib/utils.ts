@@ -1,3 +1,5 @@
+import type { Dict } from "@/lib/i18n";
+
 /** Fungsi-fungsi kecil tanpa efek samping. Semuanya punya test di tests/utils.test.ts. */
 
 export type TimeLeft = {
@@ -79,15 +81,25 @@ export function mapLinkUrl(query: string): string {
  * Waktu relatif dalam Bahasa Indonesia untuk daftar wishes: "2 jam lalu".
  * Lewat 7 hari, tanggal penuh lebih berguna daripada "23 hari lalu".
  */
-export function timeAgo(date: Date, now: Date = new Date()): string {
+/**
+ * Menerima kamus utuh, bukan hanya `t.time`, karena tanggal yang sudah
+ * lewat seminggu diformat memakai `t.locale`. Satu nilai locale di satu
+ * tempat saja — kalau disalin ke dalam grup `time`, cepat atau lambat
+ * keduanya berselisih.
+ */
+export function timeAgo(date: Date, now: Date, t: Dict): string {
   const diff = now.getTime() - date.getTime();
 
-  if (diff < MINUTE) return "baru saja";
-  if (diff < HOUR) return `${Math.floor(diff / MINUTE)} menit lalu`;
-  if (diff < DAY) return `${Math.floor(diff / HOUR)} jam lalu`;
-  if (diff < 7 * DAY) return `${Math.floor(diff / DAY)} hari lalu`;
+  /** Menyisipkan angka ke penanda {n} pada teks kamus. */
+  const ago = (template: string, n: number) =>
+    template.replace("{n}", String(n));
 
-  return date.toLocaleDateString("id-ID", {
+  if (diff < MINUTE) return t.time.justNow;
+  if (diff < HOUR) return ago(t.time.minutes, Math.floor(diff / MINUTE));
+  if (diff < DAY) return ago(t.time.hours, Math.floor(diff / HOUR));
+  if (diff < 7 * DAY) return ago(t.time.days, Math.floor(diff / DAY));
+
+  return date.toLocaleDateString(t.locale, {
     day: "numeric",
     month: "long",
     year: "numeric",

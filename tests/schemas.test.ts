@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { rsvpSchema, toFieldErrors, wishSchema } from "@/lib/schemas";
+import { dictionaries } from "@/lib/i18n";
+
+/**
+ * Schema kini berupa fungsi yang menerima pesan error, supaya tamu melihat
+ * pesan dalam bahasa yang sedang dipakainya. Aturannya tetap satu-satunya
+ * dan tetap dipakai browser maupun server.
+ */
+const rsvp = rsvpSchema(dictionaries.id.errors);
+const wish = wishSchema(dictionaries.id.errors);
 
 /**
  * Aturan validasi hanya ditulis sekali di `lib/schemas.ts`, lalu dipakai
@@ -10,7 +19,7 @@ import { rsvpSchema, toFieldErrors, wishSchema } from "@/lib/schemas";
 
 describe("rsvpSchema", () => {
   it("menerima isian yang benar dan membuang spasi berlebih pada nama", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "  Budi Santoso  ",
       attendance: "ATTENDING",
       guestCount: 2,
@@ -22,7 +31,7 @@ describe("rsvpSchema", () => {
 
   it("mengubah jumlah orang dari teks jadi angka", () => {
     // <input type="number"> tetap mengirim string. Inilah gunanya z.coerce.
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Budi Santoso",
       attendance: "ATTENDING",
       guestCount: "3",
@@ -33,7 +42,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak nama yang terlalu pendek", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "B",
       attendance: "ATTENDING",
       guestCount: 1,
@@ -44,7 +53,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak nama lebih dari 80 karakter", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "a".repeat(81),
       attendance: "ATTENDING",
       guestCount: 1,
@@ -54,7 +63,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak status kehadiran yang belum dipilih", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Budi Santoso",
       attendance: "",
       guestCount: 1,
@@ -67,7 +76,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak 'hadir' tanpa satu pun orang — aturan lintas-field", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Budi Santoso",
       attendance: "ATTENDING",
       guestCount: 0,
@@ -82,7 +91,7 @@ describe("rsvpSchema", () => {
   });
 
   it("membolehkan 0 orang kalau memang berhalangan", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Siti Rahayu",
       attendance: "NOT_ATTENDING",
       guestCount: 0,
@@ -92,7 +101,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak lebih dari 10 orang", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Budi Santoso",
       attendance: "ATTENDING",
       guestCount: 11,
@@ -103,7 +112,7 @@ describe("rsvpSchema", () => {
   });
 
   it("menolak jumlah orang berupa pecahan", () => {
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "Budi Santoso",
       attendance: "ATTENDING",
       guestCount: 2.5,
@@ -114,13 +123,13 @@ describe("rsvpSchema", () => {
 
   it("menolak body yang bukan objek sama sekali", () => {
     // Ini yang terjadi kalau seseorang mengirim POST tanpa body JSON.
-    expect(rsvpSchema.safeParse(null).success).toBe(false);
+    expect(rsvp.safeParse(null).success).toBe(false);
   });
 });
 
 describe("wishSchema", () => {
   it("menerima ucapan yang wajar", () => {
-    const hasil = wishSchema.safeParse({
+    const hasil = wish.safeParse({
       name: "Rani Wijaya",
       message: "Selamat menempuh hidup baru!",
     });
@@ -129,7 +138,7 @@ describe("wishSchema", () => {
   });
 
   it("menolak pesan yang terlalu pendek", () => {
-    const hasil = wishSchema.safeParse({ name: "Rani Wijaya", message: "hi" });
+    const hasil = wish.safeParse({ name: "Rani Wijaya", message: "hi" });
 
     expect(hasil.success).toBe(false);
     expect(toFieldErrors(hasil.error!).message).toBe("Pesan minimal 3 karakter");
@@ -139,24 +148,24 @@ describe("wishSchema", () => {
     const nama = { name: "Rani Wijaya" };
 
     expect(
-      wishSchema.safeParse({ ...nama, message: "a".repeat(500) }).success,
+      wish.safeParse({ ...nama, message: "a".repeat(500) }).success,
     ).toBe(true);
     expect(
-      wishSchema.safeParse({ ...nama, message: "a".repeat(501) }).success,
+      wish.safeParse({ ...nama, message: "a".repeat(501) }).success,
     ).toBe(false);
   });
 
   it("menolak pesan yang isinya hanya spasi", () => {
     // Dipangkas dulu baru diukur, jadi "   " dihitung 0 karakter.
     expect(
-      wishSchema.safeParse({ name: "Rani Wijaya", message: "   " }).success,
+      wish.safeParse({ name: "Rani Wijaya", message: "   " }).success,
     ).toBe(false);
   });
 });
 
 describe("toFieldErrors", () => {
   it("mengumpulkan pesan error per nama field", () => {
-    const hasil = wishSchema.safeParse({ name: "R", message: "h" });
+    const hasil = wish.safeParse({ name: "R", message: "h" });
 
     expect(toFieldErrors(hasil.error!)).toEqual({
       name: "Nama minimal 2 karakter",
@@ -167,7 +176,7 @@ describe("toFieldErrors", () => {
   it("hanya menyimpan error pertama tiap field, bukan menumpuknya", () => {
     // Nama kosong melanggar dua aturan sekaligus; yang ditampilkan ke tamu
     // cukup satu, supaya tidak terbaca seperti daftar keluhan.
-    const hasil = rsvpSchema.safeParse({
+    const hasil = rsvp.safeParse({
       guestName: "",
       attendance: "ATTENDING",
       guestCount: 1,
@@ -176,5 +185,32 @@ describe("toFieldErrors", () => {
 
     expect(Object.keys(errors)).toEqual(["guestName"]);
     expect(typeof errors.guestName).toBe("string");
+  });
+});
+
+describe("pesan error mengikuti kamus", () => {
+  it("schema yang sama menghasilkan pesan berbeda per bahasa", () => {
+    const isian = { guestName: "A", attendance: "ATTENDING", guestCount: 1 };
+
+    const id = rsvpSchema(dictionaries.id.errors).safeParse(isian);
+    const en = rsvpSchema(dictionaries.en.errors).safeParse(isian);
+
+    expect(id.success).toBe(false);
+    expect(en.success).toBe(false);
+    expect(toFieldErrors(id.error!).guestName).toBe(dictionaries.id.errors.nameMin);
+    expect(toFieldErrors(en.error!).guestName).toBe(dictionaries.en.errors.nameMin);
+  });
+
+  it("aturan lintas-field ikut memakai pesan dari kamus", () => {
+    const hasil = rsvpSchema(dictionaries.en.errors).safeParse({
+      guestName: "Budi Santoso",
+      attendance: "ATTENDING",
+      guestCount: 0,
+    });
+
+    expect(hasil.success).toBe(false);
+    expect(toFieldErrors(hasil.error!).guestCount).toBe(
+      dictionaries.en.errors.countMinWhenAttending,
+    );
   });
 });

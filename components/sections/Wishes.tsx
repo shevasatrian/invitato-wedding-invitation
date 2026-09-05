@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import Field, { inputClasses } from "@/components/ui/Field";
 import { toFieldErrors, wishSchema } from "@/lib/schemas";
 import { timeAgo } from "@/lib/utils";
+import type { Dict } from "@/lib/i18n";
 
 /**
  * Ucapan & doa dari tamu: satu form kecil, lalu daftar ucapan yang masuk.
@@ -44,7 +45,7 @@ async function fetchWishes(): Promise<Wish[] | null> {
   }
 }
 
-export default function Wishes() {
+export default function Wishes({ t }: { t: Dict }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -74,7 +75,7 @@ export default function Wishes() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    const parsed = wishSchema.safeParse(form);
+    const parsed = wishSchema(t.errors).safeParse(form);
     if (!parsed.success) {
       setErrors(toFieldErrors(parsed.error));
       return;
@@ -99,7 +100,7 @@ export default function Wishes() {
 
       if (!response.ok) {
         setErrors(json.fieldErrors ?? {});
-        setServerError(json.error ?? "Gagal mengirim ucapan.");
+        setServerError(json.error ?? t.wishes.failed);
         return;
       }
 
@@ -113,33 +114,33 @@ export default function Wishes() {
       const data = await fetchWishes();
       if (data) setWishes(data);
     } catch {
-      setServerError("Tidak bisa menghubungi server. Periksa koneksi Anda.");
+      setServerError(t.wishes.offline);
     } finally {
       setSending(false);
     }
   }
 
   return (
-    <Section id="wishes" lang="id" className="bg-cream">
-      <SectionTitle>Kind Words</SectionTitle>
+    <Section id="wishes" className="bg-cream">
+      <SectionTitle>{t.wishes.title}</SectionTitle>
 
       <Reveal delay={100}>
         <Divider className="mt-6 text-ink/70" />
 
         <p className="mt-6 text-center font-body text-lg text-ink/75">
-          Doa dan ucapan Anda adalah hadiah yang paling berarti bagi kami.
+          {t.wishes.intro}
         </p>
       </Reveal>
 
       <Reveal delay={200} className="mt-10">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          <Field id="name" label="Nama" error={errors.name}>
+          <Field id="name" label={t.wishes.name} error={errors.name}>
             <input
               id="name"
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="Nama Anda"
+              placeholder={t.wishes.namePlaceholder}
               value={form.name}
               onChange={(event) => update("name", event.target.value)}
               disabled={sending}
@@ -149,13 +150,13 @@ export default function Wishes() {
             />
           </Field>
 
-          <Field id="message" label="Ucapan" error={errors.message}>
+          <Field id="message" label={t.wishes.message} error={errors.message}>
             <textarea
               id="message"
               name="message"
               rows={4}
               maxLength={MESSAGE_MAX}
-              placeholder="Tuliskan doa dan ucapan Anda…"
+              placeholder={t.wishes.messagePlaceholder}
               value={form.message}
               onChange={(event) => update("message", event.target.value)}
               disabled={sending}
@@ -176,12 +177,12 @@ export default function Wishes() {
 
           {sent && !serverError && (
             <p role="status" className="font-ui text-xs text-ink/80">
-              Terima kasih, ucapan Anda sudah kami terima.
+              {t.wishes.received}
             </p>
           )}
 
           <Button type="submit" disabled={sending} className="w-full">
-            {sending ? "Mengirim…" : "Kirim Ucapan"}
+            {sending ? t.wishes.sending : t.wishes.submit}
           </Button>
         </form>
       </Reveal>
@@ -189,19 +190,19 @@ export default function Wishes() {
       <div className="mt-12">
         {listState === "loading" && (
           <p className="text-center font-body text-base text-stone">
-            Memuat ucapan…
+            {t.wishes.loading}
           </p>
         )}
 
         {listState === "error" && (
           <p className="text-center font-body text-base text-stone">
-            Daftar ucapan sedang tidak bisa dimuat.
+            {t.wishes.listFailed}
           </p>
         )}
 
         {listState === "ready" && wishes.length === 0 && (
           <p className="text-center font-body text-base text-stone">
-            Belum ada ucapan. Jadilah yang pertama.
+            {t.wishes.empty}
           </p>
         )}
 
@@ -219,7 +220,7 @@ export default function Wishes() {
                     {wish.name}
                   </p>
                   <p className="shrink-0 font-ui text-[0.7rem] text-stone">
-                    {timeAgo(new Date(wish.createdAt))}
+                    {timeAgo(new Date(wish.createdAt), new Date(), t)}
                   </p>
                 </div>
 

@@ -42,9 +42,9 @@ export default async function Home({
         <Countdown t={t} />
         <EventDetails t={t} />
         <LocationMap t={t} />
-        <Rsvp />
+        <Rsvp t={t} />
         <Gallery t={t} />
-        <Wishes />
+        <Wishes t={t} />
         <Footer t={t} />
       </Invitation>
     </InvitationShell>

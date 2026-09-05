@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { toFieldErrors, wishSchema } from "@/lib/schemas";
+import { dictionaries } from "@/lib/i18n";
 
 /**
  * Endpoint ucapan & doa. Bentuknya sengaja dibuat sama persis dengan
@@ -18,7 +19,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
 
-    const parsed = wishSchema.safeParse(body);
+    // Pesan server sengaja tetap satu bahasa: tamu tidak pernah melihatnya,
+    // karena browser sudah memvalidasi lebih dulu dengan aturan yang sama.
+    // Yang sampai ke sini hanya kiriman yang melewati browser, misalnya curl.
+    const parsed = wishSchema(dictionaries.id.errors).safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         {

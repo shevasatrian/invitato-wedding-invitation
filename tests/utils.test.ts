@@ -1,3 +1,8 @@
+import { dictionaries } from "@/lib/i18n";
+
+const ID = dictionaries.id;
+const EN = dictionaries.en;
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -66,19 +71,19 @@ describe("timeAgo", () => {
     new Date(NOW.getTime() - menit * 60 * 1000);
 
   it("kurang dari satu menit disebut 'baru saja'", () => {
-    expect(timeAgo(menitLalu(0.5), NOW)).toBe("baru saja");
+    expect(timeAgo(menitLalu(0.5), NOW, ID)).toBe("baru saja");
   });
 
   it("menghitung dalam menit", () => {
-    expect(timeAgo(menitLalu(5), NOW)).toBe("5 menit lalu");
+    expect(timeAgo(menitLalu(5), NOW, ID)).toBe("5 menit lalu");
   });
 
   it("menghitung dalam jam", () => {
-    expect(timeAgo(menitLalu(3 * 60), NOW)).toBe("3 jam lalu");
+    expect(timeAgo(menitLalu(3 * 60), NOW, ID)).toBe("3 jam lalu");
   });
 
   it("menghitung dalam hari", () => {
-    expect(timeAgo(menitLalu(2 * 24 * 60), NOW)).toBe("2 hari lalu");
+    expect(timeAgo(menitLalu(2 * 24 * 60), NOW, ID)).toBe("2 hari lalu");
   });
 
   it("lewat seminggu berganti jadi tanggal penuh", () => {
@@ -87,7 +92,7 @@ describe("timeAgo", () => {
     const lama = new Date("2026-12-26T05:00:00Z");
     const jauhSetelahnya = new Date("2027-03-01T05:00:00Z");
 
-    expect(timeAgo(lama, jauhSetelahnya)).toMatch(/Desember 2026/);
+    expect(timeAgo(lama, jauhSetelahnya, ID)).toMatch(/Desember 2026/);
   });
 });
 
@@ -145,5 +150,22 @@ describe("formatEventDate", () => {
     const d = new Date("2026-12-26T11:00:00+07:00");
     expect(formatEventDate(d, "en-GB")).toContain("December");
     expect(formatEventDate(d, "id-ID")).toContain("Desember");
+  });
+});
+
+describe("timeAgo mengikuti kamus", () => {
+  const menitLalu = (menit: number) => new Date(NOW.getTime() - menit * 60 * 1000);
+
+  it("mengganti penanda {n} dengan angka sesungguhnya", () => {
+    expect(timeAgo(menitLalu(5), NOW, ID)).toBe("5 menit lalu");
+    expect(timeAgo(menitLalu(5), NOW, EN)).toBe("5 minutes ago");
+  });
+
+  it("tidak menyisakan penanda {n} di keluaran mana pun", () => {
+    for (const t of [ID, EN]) {
+      for (const menit of [0.5, 5, 120, 60 * 24 * 3]) {
+        expect(timeAgo(menitLalu(menit), NOW, t)).not.toContain("{n}");
+      }
+    }
   });
 });

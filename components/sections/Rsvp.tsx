@@ -8,6 +8,7 @@ import Divider from "@/components/ui/Divider";
 import Button from "@/components/ui/Button";
 import Field, { inputClasses } from "@/components/ui/Field";
 import { rsvpSchema, toFieldErrors } from "@/lib/schemas";
+import type { Dict } from "@/lib/i18n";
 
 /**
  * Form konfirmasi kehadiran.
@@ -48,7 +49,7 @@ async function fetchSummary(): Promise<Summary | null> {
   }
 }
 
-export default function Rsvp() {
+export default function Rsvp({ t }: { t: Dict }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">(
@@ -70,7 +71,7 @@ export default function Rsvp() {
 
     // Validasi pertama: di browser. Kalau gagal, tidak ada request sama
     // sekali — tamu langsung tahu kesalahannya tanpa menunggu jaringan.
-    const parsed = rsvpSchema.safeParse(form);
+    const parsed = rsvpSchema(t.errors).safeParse(form);
     if (!parsed.success) {
       setErrors(toFieldErrors(parsed.error));
       setStatus("idle");
@@ -95,7 +96,7 @@ export default function Rsvp() {
 
       if (!response.ok) {
         setErrors(json.fieldErrors ?? {});
-        setServerError(json.error ?? "Gagal mengirim konfirmasi.");
+        setServerError(json.error ?? t.rsvp.failed);
         setStatus("error");
         return;
       }
@@ -107,7 +108,7 @@ export default function Rsvp() {
       const fresh = await fetchSummary();
       if (fresh) setSummary(fresh);
     } catch {
-      setServerError("Tidak bisa menghubungi server. Periksa koneksi Anda.");
+      setServerError(t.rsvp.offline);
       setStatus("error");
     }
   }
@@ -116,15 +117,14 @@ export default function Rsvp() {
   const attending = form.attendance === "ATTENDING";
 
   return (
-    <Section id="rsvp" lang="id" className="bg-cream">
-      <SectionTitle>RSVP</SectionTitle>
+    <Section id="rsvp" className="bg-cream">
+      <SectionTitle>{t.rsvp.title}</SectionTitle>
 
       <Reveal delay={100}>
         <Divider className="mt-6 text-ink/70" />
 
         <p className="mt-6 text-center font-body text-lg text-ink/75">
-          Merupakan suatu kehormatan bagi kami apabila Anda berkenan
-          mengonfirmasi kehadiran.
+          {t.rsvp.intro}
         </p>
       </Reveal>
 
@@ -134,10 +134,10 @@ export default function Rsvp() {
           // bawahnya untuk tamu yang mengisikan beberapa orang sekaligus.
           <div className="border border-ink/15 bg-white/60 px-6 py-10 text-center">
             <p className="font-display text-xl tracking-[0.12em] text-ink uppercase">
-              Terima kasih
+              {t.rsvp.thankYou}
             </p>
             <p className="mt-4 font-body text-lg text-ink/75">
-              Konfirmasi Anda sudah kami terima.
+              {t.rsvp.received}
             </p>
 
             <Button
@@ -148,18 +148,18 @@ export default function Rsvp() {
                 setStatus("idle");
               }}
             >
-              Isi untuk tamu lain
+              {t.rsvp.another}
             </Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            <Field id="guestName" label="Nama" error={errors.guestName}>
+            <Field id="guestName" label={t.rsvp.name} error={errors.guestName}>
               <input
                 id="guestName"
                 name="guestName"
                 type="text"
                 autoComplete="name"
-                placeholder="Nama Anda"
+                placeholder={t.rsvp.namePlaceholder}
                 value={form.guestName}
                 onChange={(event) => update("guestName", event.target.value)}
                 disabled={sending}
@@ -173,7 +173,7 @@ export default function Rsvp() {
 
             <Field
               id="attendance"
-              label="Konfirmasi Kehadiran"
+              label={t.rsvp.attendance}
               error={errors.attendance}
             >
               <select
@@ -189,10 +189,10 @@ export default function Rsvp() {
                 className={inputClasses}
               >
                 <option value="" disabled>
-                  Pilih salah satu
+                  {t.rsvp.choose}
                 </option>
-                <option value="ATTENDING">Ya, saya akan hadir</option>
-                <option value="NOT_ATTENDING">Maaf, saya berhalangan</option>
+                <option value="ATTENDING">{t.rsvp.attending}</option>
+                <option value="NOT_ATTENDING">{t.rsvp.notAttending}</option>
               </select>
             </Field>
 
@@ -201,8 +201,8 @@ export default function Rsvp() {
             {attending && (
               <Field
                 id="guestCount"
-                label="Jumlah Orang"
-                hint="Termasuk Anda sendiri, maksimal 10 orang."
+                label={t.rsvp.guestCount}
+                hint={t.rsvp.guestCountHint}
                 error={errors.guestCount}
               >
                 <input
@@ -231,7 +231,7 @@ export default function Rsvp() {
             )}
 
             <Button type="submit" disabled={sending} className="w-full">
-              {sending ? "Mengirim…" : "Kirim Konfirmasi"}
+              {sending ? t.rsvp.sending : t.rsvp.submit}
             </Button>
           </form>
         )}
@@ -242,8 +242,10 @@ export default function Rsvp() {
           seperti halaman rusak, bukan seperti undangan yang masih baru. */}
       {summary && summary.attending + summary.notAttending > 0 && (
         <p className="mt-8 text-center font-ui text-xs tracking-[0.12em] text-stone uppercase">
-          {summary.attending} hadir &middot; {summary.notAttending} berhalangan
-          &middot; {summary.totalPax} orang
+          {t.rsvp.summary
+            .replace("{attending}", String(summary.attending))
+            .replace("{notAttending}", String(summary.notAttending))
+            .replace("{pax}", String(summary.totalPax))}
         </p>
       )}
     </Section>
