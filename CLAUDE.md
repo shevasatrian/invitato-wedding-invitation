@@ -112,6 +112,9 @@ app/icon.png              ✅ ornamen belah ketupat, ikon tab (512px)
 app/apple-icon.png        ✅ ikon layar utama iOS (180px)
 app/opengraph-image.jpg   ✅ pratinjau tautan 1200x630, dari moment.webp
 README.md                 ✅ 11 bagian, deliverable PRD §1.9
+docs/panduan-kode.md      ✅ pembedahan kode + bank pertanyaan interview
+docs/superpowers/specs/   ✅ spec desain Step 12
+docs/superpowers/plans/   ✅ rencana implementasi 9 task Step 12
 tests/                    ✅ 54 test: utils, schemas, i18n, route handler
 vitest.config.mts         ✅ alias @/ untuk test
 ```
@@ -388,7 +391,9 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 ## 11. Progress
 
-**Keadaan sekarang (5 Sep 2026):** Step 1–12 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 54 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi.** Step 12 menambahkan toggle bahasa EN/ID dan section Access Card di luar kebutuhan wajib. Satu-satunya hal yang belum pernah dilihat manusia: **tampilan kartu Access Card** — screenshot gagal dua kali karena tab otomatis di sini tidak di-composite.
+**Keadaan sekarang (5 Sep 2026):** Step 1–13 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 54 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi.** Step 12 menambahkan toggle bahasa EN/ID dan section Access Card di luar kebutuhan wajib; Step 13 menyempurnakan bentuk toggle-nya, memperbaiki satu bug yang dilaporkan user, dan menulis `docs/panduan-kode.md`.
+
+**Dua hal yang masih menunggu manusia:** tampilan kartu Access Card (screenshot gagal dua kali karena tab otomatis di sini tidak di-composite) dan pembacaan ulang terjemahan Bahasa Indonesia, khususnya ayat Kidung Agung 5:2.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
@@ -403,6 +408,15 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 10 — Deploy.** Repo public `shevasatrian/invitato-wedding-invitation` (61 blob, diverifikasi **dari sisi GitHub** lewat API tree — bukan cuma dari disk). Sebelum push, password database dicari di seluruh file terlacak **dan seluruh riwayat commit**: nihil. Project Vercel tersambung otomatis ke repo; 2 env var × 3 environment terpasang sebagai Secret; `prisma migrate deploy` menjawab "No pending migrations" (skema sudah benar sejak Step 5). Production **READY** dan **terbuka untuk umum** — tidak ada Deployment Protection yang menghadang penilai. Diverifikasi langsung ke URL production: halaman `200`, `GET /api/rsvp` → `{0,0,0}`, `POST` nama 1 huruf → **400** berisi `fieldErrors`, body bukan JSON → **400**, dan **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` tersimpan sebagai **0** — server production tidak percaya kiriman client. Kedua baris uji lalu dihapus; tabel kembali 0 baris dan keadaan kosong terkonfirmasi benar (ringkasan RSVP tidak tampil).
 - [x] **Step 11 — Pratinjau tautan & ikon.** Dua celah ditemukan lewat pemeriksaan `<head>` production, bukan perkiraan. **(1) `og:image` tidak ada** — link undangan yang dibagikan di WhatsApp hanya menampilkan teks tanpa foto, padahal di situlah undangan digital sebenarnya beredar. Sekarang `app/opengraph-image.jpg` 1200x630 (69 KB) dari `moment.webp`, satu-satunya foto lanskap; potongannya dipilih setelah **melihat** tiga varian — `attention` menang karena `center` memotong ekor gaun. `twitter:image` ikut terisi sendiri tanpa berkas kedua, terbukti dari kode Next (`resolve-metadata.js:637`: `if (!hasTwImages) autoFillProps.images = openGraph.images`). **(2) Favicon masih logo Next.js** — `app/favicon.ico` masuk di commit scaffold `4a4d68b` dan tidak pernah disentuh, jadi tab tamu menampilkan huruf N di sebelah nama pengantin. Diganti `icon.png` + `apple-icon.png` berisi ornamen belah ketupat yang sama dengan `Divider`, diuji keterbacaannya di 32px (bukan cuma 512px). `metadataBase` diisi dari `site.url` yang baru di `lib/config.ts` supaya URL gambar jadi absolut — WhatsApp mengabaikan URL relatif.
 - [x] **Step 12 — Toggle bahasa EN/ID + Access Card.** Dikerjakan lewat jalur lengkap: spec (`docs/superpowers/specs/`), rencana 9 task (`docs/superpowers/plans/`), lalu dieksekusi task demi task. **Bahasa disimpan di URL (`?lang=id`)**, meniru mekanisme `?to=` yang sudah ada — tidak ada Context, seluruh section tetap Server Component, dan kamus tidak menambah satu byte pun JavaScript ke browser. **Kelengkapan terjemahan dijamin compiler**: kamus Inggris ditulis tanpa `as const` (tipenya jadi `string`), kamus Indonesia dianotasi `: Dict`, sehingga satu kunci terlewat = `tsc` gagal. **Task 1 sengaja berupa pengukuran, bukan kode**: apakah state `opened` bertahan saat `searchParams` berubah. Jawabannya bertahan (selisih scroll 0px dengan `scroll={false}`), jadi toggle boleh dipasang di nav drawer, bukan hanya di sampul. **`schemas.ts` berubah jadi fungsi** yang menerima pesan — yang berparameter hanya pesannya, aturannya tetap ditulis sekali. Route handler memakai kamus Indonesia sehingga **kontrak API tidak berubah sama sekali**, terverifikasi dengan `curl`. Access Card memakai `qrcode-generator` (nol dependensi) dan menggambar QR sebagai **satu `<path>`**, tanpa `dangerouslySetInnerHTML`. 37 → 50 test.
+- [x] **Step 13 — Penyempurnaan toggle, perbaikan bug, dan dokumentasi.** Tiga pekerjaan yang semuanya berawal dari user, bukan dari rencana.
+
+  **(1) Bentuk toggle bahasa diubah jadi segmen `EN | ID`.** Bentuk lama — satu tautan bertuliskan nama bahasa yang LAIN — ambigu: "Bahasa Indonesia" di halaman berbahasa Inggris sama masuk akalnya dibaca sebagai "bahasa saat ini" maupun "klik untuk pindah ke sini", dan tidak ada apa pun di layar yang menunjukkan bahasa aktif. Sekarang kedua bahasa tampil bersama; segmen aktif berlatar putih dan berupa `<span aria-current="true">`, **sengaja bukan tautan** karena menautkannya ke halaman yang sedang dibuka hanya memberi tamu sesuatu untuk diklik yang tidak mengubah apa pun. Pembangun URL-nya dikeluarkan dari JSX ke `languageHref()` di `lib/utils.ts` supaya bisa diuji (+4 test). Kontras terukur 10,89 dan 11,06; sasaran sentuh dilonggarkan dari 38×26px ke 49×30px.
+
+  **(2) Bug refresh diperbaiki — dan perbaikan pertamanya gagal.** User melaporkan: buka undangan, scroll ke tengah, refresh → halaman tidak kembali ke sampul dan tidak bisa di-scroll. Ternyata lebih parah: tombol Open Invitation berada **di luar layar**, jadi tamu benar-benar terjebak. Rantai sebabnya empat lapis (`opened` selalu `false` → browser memulihkan scroll → `.scroll-locked` dipasang → `overflow: hidden` MEMBEKUKAN posisi). Perbaikan pertama `window.scrollTo(0, 0)` **tidak berpengaruh** karena pemulihan scroll browser berjalan SETELAH effect React; terukur posisi tetap 5002. Yang menyelesaikannya `history.scrollRestoration = "manual"`. Catatan lengkapnya di §9.
+
+  **(3) `docs/panduan-kode.md`** — 30 KB, 7 bagian: jawaban 30 detik, alur satu kunjungan, peta berkas, pembedahan 9 berkas inti, tujuh mekanisme yang paling mungkin ditanya, bank 12 pertanyaan interview, dan 13 angka yang enak dikutip. Menulisnya membongkar tiga cacat yang tidak terlihat saat menulis kodenya: komentar `timeAgo` yang sudah berbohong ("dalam Bahasa Indonesia" padahal sudah mengikuti kamus), penjelasan ganda di `app/layout.tsx`, dan **angka salah di CLAUDE.md ini sendiri** — tertulis 7 Client Component padahal 8.
+
+  Disclosure AI di README juga diperbarui menyeluruh: sebelumnya masih versi Step 9 dan tidak menyebut empat tahap sesudahnya. 50 → 54 test.
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
 
@@ -430,6 +444,10 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `55f25c4` | gambar pratinjau tautan + ikon undangan |
 | `31ab634` · `f7a8275` | spec dan rencana implementasi Step 12 |
 | `9b8098e` … `ab6de0a` | Step 12: kamus, toggle, section, form, metadata, Access Card |
+| `332c3c2` | tombol bahasa jadi segmen EN | ID + `languageHref()` |
+| `180a327` | **fix:** refresh di tengah undangan tidak lagi menjebak tamu |
+| `e0b0337` | disclosure AI diperbarui mencakup seluruh pengerjaan |
+| `e84bc6f` | `docs/panduan-kode.md` + bersihkan komentar yang berbohong |
 
 ---
 
@@ -446,6 +464,8 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 ---
 
 ## 11c. Alur data RSVP — bekal interview
+
+> **Versi lengkapnya sekarang di `docs/panduan-kode.md`** — bagian 5.1, plus enam mekanisme lain dan bank pertanyaan. Ringkasan di bawah dipertahankan karena ini yang paling sering dibutuhkan, tapi kalau keduanya berselisih, **panduan kode yang benar**: dokumen itu ditulis dengan memeriksa ulang kodenya baris demi baris.
 
 Pertanyaan yang hampir pasti muncul: *"coba jelaskan apa yang terjadi saat tamu mengisi RSVP."*
 
@@ -479,6 +499,8 @@ Tamu klik "Kirim"
 | **Kredensial Supabase** — sudah. `.env` ada di disk (region `ap-northeast-2`, pooler `:6543` untuk runtime + `:5432` untuk migrate), terkonfirmasi diabaikan `.gitignore`. Migrasi `20260904124153_init` sudah diterapkan. | selesai |
 | **Push GitHub** — sudah. Login sebagai `shevasatrian`, repo public dibuat lewat `gh repo create --source=. --push`. | selesai |
 | **Vercel** — sudah. Project tersambung repo, env var terpasang, migrasi diterapkan, production live. | selesai |
+| **Lihat tampilan kartu Access Card** — belum pernah dilihat manusia. Screenshot gagal dua kali (`CDP timed out`) karena tab otomatis di sini tidak di-composite. Strukturnya, ukuran QR, dan isi QR sudah terverifikasi; yang belum: apakah kartunya enak dilihat. | **belum** |
+| **Baca ulang terjemahan Bahasa Indonesia** di `lib/i18n.ts`. Dikarang AI, bukan diambil dari sumber resmi. Perhatian khusus pada ayat Kidung Agung 5:2 — versi Inggrisnya memakai The Message (parafrasa), versi Indonesianya lebih dekat ke Terjemahan Baru (harfiah), jadi keduanya bukan terjemahan satu sama lain. | **belum** |
 
 ---
 
@@ -488,7 +510,7 @@ Dikirim lewat https://forms.gle/goztBD5BejTkkhGU7
 
 1. Link GitHub repository
 2. Live deployment URL yang bisa dibuka
-3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** — **SUDAH**, lihat `README.md` (11 bagian). Kedua tautan di paling atas sudah terisi, dan bagian 9 kini memuat perintah `curl` ke URL production yang bisa dijalankan penilai sendiri.
+3. README: cara jalan lokal (bagian 1) · arsitektur & keputusan teknis (bagian 4 & 6) · setup env & database (bagian 2) · **disclosure AI tools** (bagian 10) — **SUDAH**, keempatnya lengkap. Disclosure-nya diperbarui menyeluruh di Step 13: menyebut model secara tepat, mencantumkan alur kerja terstruktur beserta path spec dan rencananya yang ikut di-commit, dan memuat daftar **lima kali saran AI ditolak** setelah diuji.
 
 **Ketiganya sudah siap dikirim:**
 
@@ -498,7 +520,15 @@ Dikirim lewat https://forms.gle/goztBD5BejTkkhGU7
 | Live deployment | <https://invitato-wedding-invitation-navy.vercel.app> |
 | README | `README.md` di root repo |
 
-Tambahan: ringkasan alur data (klik Submit → validasi client → `fetch` → route handler → Zod → Prisma → Postgres → response → UI) sebagai bekal interview.
+**Dokumen tambahan di luar yang diminta PRD** — bukan deliverable, tapi ikut terbaca penilai kalau mereka membuka repo:
+
+| Berkas | Isi |
+|---|---|
+| `docs/panduan-kode.md` | pembedahan kode berkas demi berkas + bank 12 pertanyaan interview. Bekal utama user sebelum wawancara |
+| `docs/superpowers/specs/` | spec desain Step 12, ditulis sebelum kodenya |
+| `docs/superpowers/plans/` | rencana implementasi 9 task Step 12 |
+
+Ketiganya sengaja tidak dihapus setelah dipakai. Penilai bisa melihat bahwa fitur terakhir dirancang lebih dulu, bukan langsung dikoding.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
