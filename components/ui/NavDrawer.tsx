@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import CoupleNames from "@/components/ui/CoupleNames";
 import { couple, navLinks } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /**
  * Menu melayang di kiri bawah. Menekannya membuka panel gelap dari kanan
@@ -11,7 +12,7 @@ import { couple, navLinks } from "@/lib/config";
  * Tautannya `<a href="#id">` biasa — perpindahan halusnya datang dari
  * `scroll-behavior: smooth` di globals.css, bukan dari JavaScript.
  */
-export default function NavDrawer() {
+export default function NavDrawer({ t }: { t: Dict }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function NavDrawer() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Buka menu"
+        aria-label={t.nav.open}
         aria-expanded={open}
         className="fixed bottom-5 left-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/80 text-white backdrop-blur-sm transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
@@ -51,7 +52,7 @@ export default function NavDrawer() {
       />
 
       <nav
-        aria-label="Menu undangan"
+        aria-label={t.nav.menu}
         // inert menyembunyikan panel dari pembaca layar dan navigasi Tab
         // selama tertutup, walaupun elemennya masih ada di DOM.
         inert={!open}
@@ -68,7 +69,7 @@ export default function NavDrawer() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Tutup menu"
+              aria-label={t.nav.close}
               className="-mt-2 p-2 font-ui text-2xl text-white/70 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               &times;
@@ -83,7 +84,7 @@ export default function NavDrawer() {
                   onClick={() => setOpen(false)}
                   className="block py-4 text-right font-display text-base tracking-[0.12em] text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
-                  {link.label}
+                  {t.nav[link.id]}
                 </a>
               </li>
             ))}

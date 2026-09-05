@@ -1,6 +1,7 @@
 import Image from "next/image";
 import CoupleNames from "@/components/ui/CoupleNames";
 import { verse, images } from "@/lib/config";
+import type { Lang } from "@/lib/i18n";
 
 /**
  * Kerangka halaman, meniru cara template Invitato tampil di desktop.
@@ -16,8 +17,15 @@ import { verse, images } from "@/lib/config";
  * menghitung sendiri margin kolom kanan supaya tidak tertimpa.
  */
 export default function InvitationShell({
+  lang,
   children,
 }: {
+  /**
+   * Bahasa isi undangan. Dipasang di <main>, bukan di <html>, karena
+   * layout tidak menerima searchParams. Pembaca layar memakai atribut
+   * lang terdekat, jadi menandainya di sini sudah benar.
+   */
+  lang: Lang;
   children: React.ReactNode;
 }) {
   return (
@@ -26,7 +34,10 @@ export default function InvitationShell({
 
       {/* 32rem = 512px, sedikit lebih lebar dari layar HP terbesar,
           sehingga tata letak mobile tetap terasa lapang di desktop. */}
-      <main className="w-full bg-mist lg:w-[32rem] lg:shrink-0 lg:shadow-2xl lg:shadow-charcoal/20">
+      <main
+        lang={lang}
+        className="w-full bg-mist lg:w-[32rem] lg:shrink-0 lg:shadow-2xl lg:shadow-charcoal/20"
+      >
         {children}
       </main>
     </div>

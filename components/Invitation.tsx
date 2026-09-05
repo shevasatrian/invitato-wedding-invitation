@@ -5,6 +5,7 @@ import Cover from "@/components/sections/Cover";
 import NavDrawer from "@/components/ui/NavDrawer";
 import MusicToggle from "@/components/ui/MusicToggle";
 import { music } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /**
  * Pemegang state tingkat halaman: undangan sudah dibuka atau belum, dan
@@ -18,9 +19,11 @@ import { music } from "@/lib/config";
  * `children`, jadi tidak ikut terbundel ke JavaScript browser.
  */
 export default function Invitation({
+  t,
   guestName,
   children,
 }: {
+  t: Dict;
   guestName?: string;
   children: React.ReactNode;
 }) {
@@ -105,7 +108,7 @@ export default function Invitation({
           supaya halaman sampul tetap bersih. */}
       {opened && (
         <>
-          <NavDrawer />
+          <NavDrawer t={t} />
           {musicAvailable && (
             <MusicToggle playing={playing} onToggle={toggleMusic} />
           )}

@@ -9,25 +9,34 @@ import Rsvp from "@/components/sections/Rsvp";
 import Gallery from "@/components/sections/Gallery";
 import Wishes from "@/components/sections/Wishes";
 import Footer from "@/components/sections/Footer";
+import { dictionaries, pickLang } from "@/lib/i18n";
 
 /**
  * Halaman undangan. Isinya hanya susunan section, tanpa logika —
  * urutan di sini persis urutan yang dilihat tamu saat men-scroll.
  *
- * `searchParams` dipakai untuk personalisasi: tautan seperti
- * `/?to=Budi%20Santoso` akan menyapa tamu dengan namanya di halaman sampul.
+ * `searchParams` dipakai untuk dua hal, dan keduanya tinggal di URL supaya
+ * ikut terbawa saat tautan dibagikan:
+ *
+ *   ?to=Budi%20Santoso  menyapa tamu dengan namanya di halaman sampul
+ *   ?lang=id            menampilkan seluruh undangan dalam Bahasa Indonesia
+ *
  * Sejak Next.js 16 nilainya berupa Promise, jadi harus di-`await`.
  */
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ to?: string }>;
+  searchParams: Promise<{ to?: string; lang?: string }>;
 }) {
-  const { to } = await searchParams;
+  const { to, lang: rawLang } = await searchParams;
+
+  const lang = pickLang(rawLang);
+  const t = dictionaries[lang];
+  const guestName = to?.trim() || undefined;
 
   return (
-    <InvitationShell>
-      <Invitation guestName={to?.trim() || undefined}>
+    <InvitationShell lang={lang}>
+      <Invitation t={t} guestName={guestName}>
         <Welcoming />
         <CoupleProfile />
         <Countdown />

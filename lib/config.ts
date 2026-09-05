@@ -100,13 +100,18 @@ export const gallery = [
   { src: "/images/gallery-5.webp", alt: "Fellycia berdiri di ambang jendela, Ricky bersandar menatapnya" },
 ] as const;
 
-/** Tautan yang dipakai di nav drawer. Urutannya mengikuti urutan section. */
+/**
+ * Tautan yang dipakai di nav drawer. Urutannya mengikuti urutan section.
+ *
+ * Hanya id-nya yang di sini. Labelnya tinggal di `lib/i18n.ts` (`nav`)
+ * karena ikut berganti saat tamu mengganti bahasa.
+ */
 export const navLinks = [
-  { id: "couple", label: "Groom & Bride" },
-  { id: "details", label: "Wedding Details" },
-  { id: "gallery", label: "Gallery" },
-  { id: "rsvp", label: "RSVP" },
-  { id: "wishes", label: "Kind Words" },
+  { id: "couple" },
+  { id: "details" },
+  { id: "gallery" },
+  { id: "rsvp" },
+  { id: "wishes" },
 ] as const;
 
 /**
