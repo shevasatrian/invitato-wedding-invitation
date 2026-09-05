@@ -5,6 +5,7 @@ import CoupleProfile from "@/components/sections/CoupleProfile";
 import Countdown from "@/components/sections/Countdown";
 import EventDetails from "@/components/sections/EventDetails";
 import LocationMap from "@/components/sections/LocationMap";
+import AccessCard from "@/components/sections/AccessCard";
 import Rsvp from "@/components/sections/Rsvp";
 import Gallery from "@/components/sections/Gallery";
 import Wishes from "@/components/sections/Wishes";
@@ -70,6 +71,7 @@ export default async function Home({
         <Countdown t={t} />
         <EventDetails t={t} />
         <LocationMap t={t} />
+        <AccessCard t={t} lang={lang} guestName={guestName} />
         <Rsvp t={t} />
         <Gallery t={t} />
         <Wishes t={t} />

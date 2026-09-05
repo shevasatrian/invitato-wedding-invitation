@@ -30,6 +30,7 @@ const en = {
     close: "Close menu",
     couple: "Groom & Bride",
     details: "Wedding Details",
+    access: "Access Card",
     gallery: "Gallery",
     rsvp: "RSVP",
     wishes: "Kind Words",
@@ -84,6 +85,14 @@ at the wedding celebration of`,
     seconds: "Seconds",
     over: "The awaited day has arrived.",
     save: "Save the Date",
+  },
+
+  accessCard: {
+    title: "Access Card",
+    intro: "Please show this card when you arrive.",
+    guest: "Guest",
+    honoredGuest: "Honored Guest",
+    qrAlt: "Decorative QR code containing the link to this invitation",
   },
 
   details: {
@@ -198,6 +207,7 @@ const id: Dict = {
     close: "Tutup menu",
     couple: "Mempelai",
     details: "Detail Acara",
+    access: "Kartu Undangan",
     gallery: "Galeri",
     rsvp: "Konfirmasi",
     wishes: "Ucapan & Doa",
@@ -249,6 +259,14 @@ di pernikahan kami`,
     seconds: "Detik",
     over: "Hari yang dinanti telah tiba.",
     save: "Simpan Tanggalnya",
+  },
+
+  accessCard: {
+    title: "Kartu Undangan",
+    intro: "Mohon tunjukkan kartu ini saat tiba di lokasi.",
+    guest: "Tamu",
+    honoredGuest: "Tamu Undangan",
+    qrAlt: "Kode QR hiasan berisi tautan undangan ini",
   },
 
   details: {

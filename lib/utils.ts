@@ -1,4 +1,5 @@
-import type { Dict } from "@/lib/i18n";
+import type { Dict, Lang } from "@/lib/i18n";
+import { site } from "@/lib/config";
 
 /** Fungsi-fungsi kecil tanpa efek samping. Semuanya punya test di tests/utils.test.ts. */
 
@@ -115,4 +116,19 @@ export function formatEventDate(date: Date, locale: string): string {
     year: "numeric",
     timeZone: "Asia/Jakarta",
   });
+}
+
+/**
+ * Alamat undangan ini secara lengkap, termasuk nama tamu kalau ada.
+ *
+ * Dipakai sebagai isi QR pada Access Card, jadi URL-nya WAJIB absolut —
+ * kode QR dibaca dari kamera ponsel yang tidak punya konteks halaman ini.
+ * Inggris adalah bahasa default, jadi `lang` hanya ditulis untuk Indonesia.
+ */
+export function invitationUrl(guestName?: string, lang: Lang = "en"): string {
+  const params = new URLSearchParams();
+  if (guestName) params.set("to", guestName);
+  if (lang === "id") params.set("lang", "id");
+
+  return params.size > 0 ? `${site.url}/?${params}` : site.url;
 }

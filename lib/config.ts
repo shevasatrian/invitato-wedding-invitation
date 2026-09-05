@@ -101,6 +101,7 @@ export const gallery = [
 export const navLinks = [
   { id: "couple" },
   { id: "details" },
+  { id: "access" },
   { id: "gallery" },
   { id: "rsvp" },
   { id: "wishes" },

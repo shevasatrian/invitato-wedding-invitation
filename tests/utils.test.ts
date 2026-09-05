@@ -1,4 +1,5 @@
 import { dictionaries } from "@/lib/i18n";
+import { site } from "@/lib/config";
 
 const ID = dictionaries.id;
 const EN = dictionaries.en;
@@ -7,6 +8,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatEventDate,
+  invitationUrl,
   getTimeLeft,
   googleCalendarUrl,
   mapEmbedUrl,
@@ -166,6 +168,27 @@ describe("timeAgo mengikuti kamus", () => {
       for (const menit of [0.5, 5, 120, 60 * 24 * 3]) {
         expect(timeAgo(menitLalu(menit), NOW, t)).not.toContain("{n}");
       }
+    }
+  });
+});
+
+describe("invitationUrl", () => {
+  it("mengembalikan URL polos kalau tidak ada nama tamu", () => {
+    expect(invitationUrl()).toBe(site.url);
+  });
+
+  it("menyertakan nama tamu yang sudah di-encode", () => {
+    expect(invitationUrl("Budi Santoso")).toBe(`${site.url}/?to=Budi+Santoso`);
+  });
+
+  it("menyertakan bahasa hanya kalau bukan default", () => {
+    expect(invitationUrl("Budi", "en")).toBe(`${site.url}/?to=Budi`);
+    expect(invitationUrl("Budi", "id")).toBe(`${site.url}/?to=Budi&lang=id`);
+  });
+
+  it("tidak pernah menghasilkan URL relatif — QR harus bisa dibuka dari luar", () => {
+    for (const url of [invitationUrl(), invitationUrl("Budi"), invitationUrl("Budi", "id")]) {
+      expect(url.startsWith("https://")).toBe(true);
     }
   });
 });
