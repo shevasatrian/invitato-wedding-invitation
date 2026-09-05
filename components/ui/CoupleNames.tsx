@@ -1,4 +1,5 @@
 import { couple } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /**
  * "RICKY and FELLYCIA" dengan kata "and" memakai font tulisan tangan.
@@ -12,15 +13,19 @@ import { couple } from "@/lib/config";
  * berjarak karena margin.
  */
 export default function CoupleNames({
-  /** Kelas tambahan untuk kata "and", biasanya untuk mengatur ukurannya. */
+  t,
+  /** Kelas tambahan untuk kata penghubung, biasanya untuk mengatur ukurannya. */
   andClassName = "",
 }: {
+  t: Dict;
   andClassName?: string;
 }) {
   return (
     <>
       {couple.groom.shortName}{" "}
-      <span className={`font-script normal-case ${andClassName}`}>and</span>{" "}
+      <span className={`font-script normal-case ${andClassName}`}>
+        {t.couple.and}
+      </span>{" "}
       {couple.bride.shortName}
     </>
   );

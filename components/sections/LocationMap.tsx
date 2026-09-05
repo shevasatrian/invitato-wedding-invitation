@@ -2,6 +2,7 @@ import Section, { SectionTitle } from "@/components/ui/Section";
 import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
 import { mapVenue } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 import { mapEmbedUrl, mapLinkUrl } from "@/lib/utils";
 
 const query = `${mapVenue.venue}, ${mapVenue.address}`;
@@ -13,10 +14,10 @@ const query = `${mapVenue.venue}, ${mapVenue.address}`;
  * API key — jadi tidak ada kunci rahasia yang harus dititipkan di repo
  * maupun di environment variable, dan tidak ada tagihan yang bisa membengkak.
  */
-export default function LocationMap() {
+export default function LocationMap({ t }: { t: Dict }) {
   return (
     <Section id="location">
-      <SectionTitle>Location</SectionTitle>
+      <SectionTitle>{t.location.title}</SectionTitle>
 
       <Reveal delay={100}>
         <p className="mt-6 text-center font-body text-lg text-ink/80">
@@ -31,7 +32,7 @@ export default function LocationMap() {
         <div className="relative mt-8 aspect-[4/3] w-full border border-ink/20">
           <iframe
             src={mapEmbedUrl(query)}
-            title={`Peta lokasi ${mapVenue.venue}`}
+            title={t.location.mapOf.replace("{venue}", mapVenue.venue)}
             // lazy: peta baru dimuat saat tamu benar-benar men-scroll ke sini,
             // sehingga tidak memperlambat pemuatan awal undangan.
             loading="lazy"
@@ -44,7 +45,7 @@ export default function LocationMap() {
       <Reveal delay={240}>
         <div className="mt-8 text-center">
           <Button href={mapLinkUrl(query)} external>
-            Buka di Google Maps
+            {t.location.openMaps}
           </Button>
         </div>
       </Reveal>

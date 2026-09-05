@@ -31,7 +31,7 @@ export default function Welcoming({ t }: { t: Dict }) {
 
         <Reveal delay={120}>
           <p className="mt-8 font-display text-3xl tracking-[0.05em] text-ink uppercase">
-            <CoupleNames andClassName="mx-2 text-2xl" />
+            <CoupleNames t={t} andClassName="mx-2 text-2xl" />
           </p>
         </Reveal>
 

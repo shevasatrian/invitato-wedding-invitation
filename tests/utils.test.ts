@@ -136,8 +136,14 @@ describe("formatEventDate", () => {
   it("selalu memakai zona Jakarta, bukan zona komputer yang menjalankan", () => {
     // 25 Des 21:00 UTC = 26 Des 04:00 WIB. Tanpa timeZone: "Asia/Jakarta",
     // hasilnya akan berbunyi 25 Desember di sebagian mesin.
-    expect(formatEventDate(new Date("2026-12-25T21:00:00Z"))).toBe(
+    expect(formatEventDate(new Date("2026-12-25T21:00:00Z"), "en-GB")).toBe(
       "Saturday, 26 December 2026",
     );
+  });
+
+  it("mengikuti locale yang diberikan", () => {
+    const d = new Date("2026-12-26T11:00:00+07:00");
+    expect(formatEventDate(d, "en-GB")).toContain("December");
+    expect(formatEventDate(d, "id-ID")).toContain("Desember");
   });
 });

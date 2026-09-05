@@ -1,9 +1,10 @@
 import Image from "next/image";
 import CoupleNames from "@/components/ui/CoupleNames";
 import { couple, images, music, weddingDate } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /** Penutup undangan. */
-export default function Footer() {
+export default function Footer({ t }: { t: Dict }) {
   return (
     <footer className="relative overflow-hidden px-7 py-24 text-center">
       <Image
@@ -17,11 +18,11 @@ export default function Footer() {
 
       <div className="relative">
         <p className="font-display text-sm tracking-[0.3em] text-white/85 uppercase">
-          Thank You,
+          {t.footer.thankYou}
         </p>
 
         <p className="mt-6 font-display text-3xl tracking-[0.05em] text-white uppercase">
-          <CoupleNames andClassName="mx-2 text-2xl" />
+          <CoupleNames t={t} andClassName="mx-2 text-2xl" />
         </p>
 
         <p className="mt-4 font-script text-xl text-white/75">
@@ -29,10 +30,12 @@ export default function Footer() {
         </p>
 
         <div className="mt-14 space-y-1 font-body text-sm text-white/55">
-          {music.credit && <p>{music.credit}</p>}
+          <p>
+            {t.footer.songBy} {music.title}
+          </p>
           <p>
             &copy; {weddingDate.getFullYear()} {couple.groom.shortName} &amp;{" "}
-            {couple.bride.shortName}. All Rights Reserved.
+            {couple.bride.shortName}. {t.footer.rights}
           </p>
         </div>
       </div>

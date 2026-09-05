@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect } from "react";
 
+import type { Dict } from "@/lib/i18n";
+
 type Photo = { src: string; alt: string };
 
 /**
@@ -12,11 +14,13 @@ type Photo = { src: string; alt: string };
  * menyimpan satu state: foto ke berapa yang sedang dibuka.
  */
 export default function Lightbox({
+  t,
   photos,
   index,
   onClose,
   onChange,
 }: {
+  t: Dict;
   photos: readonly Photo[];
   index: number | null;
   onClose: () => void;
@@ -61,17 +65,19 @@ export default function Lightbox({
       <button
         type="button"
         onClick={onClose}
-        aria-label="Tutup"
+        aria-label={t.lightbox.close}
         className="absolute top-5 right-5 z-10 p-2 font-ui text-2xl text-white/80 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         &times;
       </button>
 
       <NavButton
+        t={t}
         side="left"
         onClick={() => onChange((index - 1 + photos.length) % photos.length)}
       />
       <NavButton
+        t={t}
         side="right"
         onClick={() => onChange((index + 1) % photos.length)}
       />
@@ -98,14 +104,16 @@ export default function Lightbox({
 function NavButton({
   side,
   onClick,
+  t,
 }: {
   side: "left" | "right";
   onClick: () => void;
+  t: Dict;
 }) {
   return (
     <button
       type="button"
-      aria-label={side === "left" ? "Foto sebelumnya" : "Foto berikutnya"}
+      aria-label={side === "left" ? t.lightbox.previous : t.lightbox.next}
       onClick={(event) => {
         event.stopPropagation();
         onClick();

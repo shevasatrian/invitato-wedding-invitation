@@ -40,12 +40,12 @@ export default async function Home({
         <Welcoming t={t} />
         <CoupleProfile t={t} />
         <Countdown t={t} />
-        <EventDetails />
-        <LocationMap />
+        <EventDetails t={t} />
+        <LocationMap t={t} />
         <Rsvp />
-        <Gallery />
+        <Gallery t={t} />
         <Wishes />
-        <Footer />
+        <Footer t={t} />
       </Invitation>
     </InvitationShell>
   );

@@ -3,10 +3,11 @@ import Reveal from "@/components/ui/Reveal";
 import Divider from "@/components/ui/Divider";
 import Button from "@/components/ui/Button";
 import { events, weddingDate } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 import { formatEventDate, mapLinkUrl } from "@/lib/utils";
 
 /** Tanggal, jam, dan lokasi kedua acara. */
-export default function EventDetails() {
+export default function EventDetails({ t }: { t: Dict }) {
   return (
     <Section id="details" className="bg-cream">
       <div className="text-center">
@@ -15,10 +16,10 @@ export default function EventDetails() {
               menautkan ke sini, dan pengguna pembaca layar berpindah antar
               bagian lewat daftar heading. Tampilannya tidak berubah. */}
           <h2 className="font-display text-[0.7rem] tracking-[0.25em] text-ink/80 uppercase">
-            Save the Date
+            {t.details.saveTheDate}
           </h2>
           <p className="mt-4 font-display text-2xl tracking-[0.06em] text-ink">
-            {formatEventDate(weddingDate)}
+            {formatEventDate(weddingDate, t.locale)}
           </p>
         </Reveal>
 
@@ -37,7 +38,7 @@ export default function EventDetails() {
 
             <Reveal delay={index * 100} className={index === 0 ? "mt-10" : ""}>
               <h3 className="font-display text-[0.7rem] tracking-[0.25em] text-ink/80 uppercase">
-                {event.title}
+                {t.details.events[event.id]}
               </h3>
 
               <p className="mt-3 font-display text-3xl text-ink">
@@ -57,7 +58,7 @@ export default function EventDetails() {
                 variant="outline"
                 className="mt-6 px-6 py-2 text-xs"
               >
-                See Location
+                {t.details.seeLocation}
               </Button>
             </Reveal>
           </div>

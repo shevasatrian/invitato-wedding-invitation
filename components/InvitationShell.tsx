@@ -79,7 +79,7 @@ function DesktopPanel({ t }: { t: Dict }) {
         </p>
 
         <p className="mt-5 font-display text-5xl tracking-[0.06em] text-cream uppercase xl:text-6xl">
-          <CoupleNames andClassName="mx-3 text-4xl xl:text-5xl" />
+          <CoupleNames t={t} andClassName="mx-3 text-4xl xl:text-5xl" />
         </p>
 
         <p className="mt-8 max-w-md font-body text-lg leading-relaxed text-cream/80 italic">

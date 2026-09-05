@@ -66,6 +66,8 @@ at the wedding celebration of`,
     sonOf: "The Son of",
     daughterOf: "The Daughter of",
     instagram: "Open Instagram of {name}",
+    /** Kata penghubung nama mempelai, ditulis dengan font tulisan tangan. */
+    and: "and",
   },
 
   countdown: {
@@ -76,6 +78,45 @@ at the wedding celebration of`,
     seconds: "Seconds",
     over: "The awaited day has arrived.",
     save: "Save the Date",
+  },
+
+  details: {
+    saveTheDate: "Save the Date",
+    seeLocation: "See Location",
+    /** Dipetakan lewat events[].id di lib/config.ts. */
+    events: { matrimony: "Holy Matrimony", reception: "Wedding Reception" },
+  },
+
+  location: {
+    title: "Location",
+    openMaps: "Open in Google Maps",
+    mapOf: "Map of {venue}",
+  },
+
+  gallery: {
+    title: "A Portrait Of",
+    quote: "True love is when both people think they are the lucky one",
+    zoom: "Enlarge photo: {alt}",
+    /** Urutannya harus sama dengan `gallery` di lib/config.ts. */
+    alts: [
+      "Ricky and Fellycia aboard a sailboat at sunset",
+      "Ricky and Fellycia toasting in a wood-panelled bar",
+      "Ricky and Fellycia standing before a tall window",
+      "Ricky and Fellycia seated together in a window frame",
+      "Fellycia on the window ledge as Ricky leans in to watch her",
+    ],
+  },
+
+  lightbox: {
+    close: "Close",
+    previous: "Previous photo",
+    next: "Next photo",
+  },
+
+  footer: {
+    thankYou: "Thank You,",
+    songBy: "Song by",
+    rights: "All Rights Reserved.",
   },
 };
 
@@ -129,6 +170,7 @@ di pernikahan kami`,
     sonOf: "Putra dari",
     daughterOf: "Putri dari",
     instagram: "Buka Instagram {name}",
+    and: "dan",
   },
 
   countdown: {
@@ -139,6 +181,43 @@ di pernikahan kami`,
     seconds: "Detik",
     over: "Hari yang dinanti telah tiba.",
     save: "Simpan Tanggalnya",
+  },
+
+  details: {
+    saveTheDate: "Simpan Tanggalnya",
+    seeLocation: "Lihat Lokasi",
+    events: { matrimony: "Pemberkatan Nikah", reception: "Resepsi Pernikahan" },
+  },
+
+  location: {
+    title: "Lokasi",
+    openMaps: "Buka di Google Maps",
+    mapOf: "Peta lokasi {venue}",
+  },
+
+  gallery: {
+    title: "Potret",
+    quote: "Cinta sejati adalah ketika keduanya merasa dialah yang beruntung",
+    zoom: "Perbesar foto: {alt}",
+    alts: [
+      "Ricky dan Fellycia di atas kapal layar saat matahari terbenam",
+      "Ricky dan Fellycia bersulang di ruang bar berpanel kayu",
+      "Ricky dan Fellycia berdiri di depan jendela tinggi",
+      "Ricky dan Fellycia duduk berdampingan di bingkai jendela",
+      "Fellycia berdiri di ambang jendela, Ricky bersandar menatapnya",
+    ],
+  },
+
+  lightbox: {
+    close: "Tutup",
+    previous: "Foto sebelumnya",
+    next: "Foto berikutnya",
+  },
+
+  footer: {
+    thankYou: "Terima Kasih,",
+    songBy: "Lagu oleh",
+    rights: "Seluruh hak cipta dilindungi.",
   },
 };
 

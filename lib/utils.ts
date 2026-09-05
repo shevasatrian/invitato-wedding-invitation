@@ -95,8 +95,8 @@ export function timeAgo(date: Date, now: Date = new Date()): string {
 }
 
 /** "Sabtu, 26 Desember 2026" — dipakai di section Wedding Details. */
-export function formatEventDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
+export function formatEventDate(date: Date, locale: string): string {
+  return date.toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",

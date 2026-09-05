@@ -46,7 +46,7 @@ export default function Cover({
         </p>
 
         <h1 className="mt-5 font-display text-4xl tracking-[0.05em] text-white uppercase sm:text-5xl">
-          <CoupleNames andClassName="mx-2 text-3xl sm:text-4xl" />
+          <CoupleNames t={t} andClassName="mx-2 text-3xl sm:text-4xl" />
         </h1>
 
         <p className="mt-6 max-w-sm font-body text-base leading-relaxed text-white/85 italic">

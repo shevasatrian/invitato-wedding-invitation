@@ -72,7 +72,7 @@ export default function NavDrawer({
         <div>
           <div className="flex items-start justify-between">
             <p className="font-display text-xl tracking-[0.05em] text-white uppercase">
-              <CoupleNames andClassName="mx-1.5 text-lg" />
+              <CoupleNames t={t} andClassName="mx-1.5 text-lg" />
             </p>
 
             <button

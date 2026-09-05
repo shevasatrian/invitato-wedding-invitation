@@ -27,9 +27,6 @@ export const couple = {
 } as const;
 
 
-/** Dipindah ke lib/i18n.ts pada Task 5, bersama section Gallery yang memakainya. */
-export const quote =
-  "True love is when both people think they're the lucky one";
 
 /**
  * Tanggal acara dalam ISO 8601 lengkap dengan offset +07:00 (WIB).
@@ -42,7 +39,6 @@ export const weddingDate = new Date("2026-12-26T11:00:00+07:00");
 export const events = [
   {
     id: "matrimony",
-    title: "Holy Matrimony",
     time: "11.00 WIB",
     venue: "GBT Kristus Alfa Omega Puri Anjasmoro",
     address: "Jalan Puri Anjasmoro No 10 Blok J1, Semarang",
@@ -51,7 +47,6 @@ export const events = [
   },
   {
     id: "reception",
-    title: "Wedding Reception",
     time: "18.00 WIB",
     venue: "MAC Ballroom",
     address: "Jalan Majapahit No 168, Gayamsari, Kec. Gayamsari, Kota Semarang",
@@ -85,12 +80,16 @@ export const images = {
   texture: "/images/texture.webp",
 } as const;
 
+/**
+ * Foto galeri. Hanya path-nya di sini — teks alternatifnya ada di
+ * `lib/i18n.ts` (`gallery.alts`), berpasangan menurut urutan yang sama.
+ */
 export const gallery = [
-  { src: "/images/gallery-1.webp", alt: "Ricky dan Fellycia di atas kapal layar saat matahari terbenam" },
-  { src: "/images/gallery-2.webp", alt: "Ricky dan Fellycia bersulang di ruang bar berpanel kayu" },
-  { src: "/images/gallery-3.webp", alt: "Ricky dan Fellycia berdiri di depan jendela tinggi" },
-  { src: "/images/gallery-4.webp", alt: "Ricky dan Fellycia duduk berdampingan di bingkai jendela" },
-  { src: "/images/gallery-5.webp", alt: "Fellycia berdiri di ambang jendela, Ricky bersandar menatapnya" },
+  { src: "/images/gallery-1.webp" },
+  { src: "/images/gallery-2.webp" },
+  { src: "/images/gallery-3.webp" },
+  { src: "/images/gallery-4.webp" },
+  { src: "/images/gallery-5.webp" },
 ] as const;
 
 /**
@@ -119,7 +118,8 @@ export const navLinks = [
  */
 export const music = {
   src: "/audio/backsound.mp3",
-  credit: "Song by PaulYudin — Romantic Piano Inspiring",
+  /** Judul karya dan nama pemusiknya — sama di bahasa mana pun. */
+  title: "PaulYudin — Romantic Piano Inspiring",
 } as const;
 
 export const site = {

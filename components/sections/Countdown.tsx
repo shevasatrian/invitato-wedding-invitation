@@ -74,7 +74,7 @@ export default function Countdown({ t }: { t: Dict }) {
           <Button
             href={googleCalendarUrl({
               title: `The Wedding of ${couple.groom.shortName} & ${couple.bride.shortName}`,
-              details: `${matrimony.title} — ${matrimony.venue}`,
+              details: `${t.details.events.matrimony} — ${matrimony.venue}`,
               location: `${matrimony.venue}, ${matrimony.address}`,
               startsAt: matrimony.startsAt,
               endsAt: matrimony.endsAt,
