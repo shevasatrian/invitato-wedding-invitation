@@ -46,14 +46,23 @@ const parisienne = Parisienne({
   display: "swap",
 });
 
+/**
+ * Gambar pratinjau tautan diambil Next dari app/opengraph-image.jpg lewat
+ * konvensi nama berkas — tidak perlu disebut di sini. metadataBase yang
+ * mengubah path-nya jadi URL absolut. Twitter mewarisi gambar yang sama,
+ * jadi cukup satu berkas.
+ */
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
   title: site.title,
   description: site.description,
   openGraph: {
     title: site.title,
     description: site.description,
     type: "website",
+    url: site.url,
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({

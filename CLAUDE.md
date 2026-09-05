@@ -101,6 +101,9 @@ prisma/schema.prisma      ✅ model Rsvp & Wish
 scripts/optimize-images.mjs ✅
 public/images/*.webp      ✅ 11 file, 612 KB
 public/audio/backsound.mp3 ✅ 4,4 MB
+app/icon.png              ✅ ornamen belah ketupat, ikon tab (512px)
+app/apple-icon.png        ✅ ikon layar utama iOS (180px)
+app/opengraph-image.jpg   ✅ pratinjau tautan 1200x630, dari moment.webp
 README.md                 ✅ 11 bagian, deliverable PRD §1.9
 tests/                    ✅ 37 test: utils, schemas, route handler
 vitest.config.mts         ✅ alias @/ untuk test
@@ -244,6 +247,15 @@ Dokumentasi versi terpasang ada di `node_modules/next/dist/docs/`. Yang relevan:
 - **`next dev` menulis ulang blok `BEGIN:nextjs-agent-rules` di akhir file ini** setiap kali dev server jalan — jadi ikut di-commit saja supaya working tree tetap bersih. Bisa dimatikan lewat `agentRules: false` di `next.config.ts`.
 - **JANGAN pernah menulis penanda `<`+`!-- BEGIN:nextjs-agent-rules --`+`>` secara utuh di dalam prosa file ini.** Generatornya (`node_modules/next/dist/server/lib/generate-agent-files.js:149`) mencari kemunculan **pertama** penanda BEGIN dan kemunculan **pertama** penanda END, lalu membuang semua yang ada di antaranya. Penyebutan di tengah dokumen membuat seluruh isi setelahnya terhapus — sudah pernah terjadi sekali, §10 sampai §13 hilang (147 baris) dan dipulihkan dengan `git checkout -- CLAUDE.md`. Karena itu penandanya sekarang ditulis terpotong.
 
+### Turbopack tidak membaca `opengraph-image.alt.txt`
+
+Dokumentasi Next 16 menjanjikan berkas `opengraph-image.alt.txt` akan menghasilkan
+`og:image:alt`. **Di 16.3.4 itu tidak terjadi.** Kodenya hanya ada di loader webpack
+(`node_modules/next/dist/build/webpack/loaders/next-metadata-image-loader.js:138`),
+sedangkan `next build` versi ini memakai Turbopack. Sudah diuji dengan build bersih
+(`rm -rf .next`): tagnya tetap tidak muncul. Berkasnya dibuang daripada mengirim
+berkas yang tidak berfungsi. Pelajarannya: dokumentasi menjanjikan, build yang membuktikan.
+
 ### IntersectionObserver TIDAK berjalan di tab otomatis ini
 
 Tab yang dikendalikan otomatis punya `document.visibilityState === "hidden"`. Akibatnya `requestAnimationFrame` tidak pernah dipanggil dan **IntersectionObserver tidak pernah menembak** — semua `Reveal` bertahan di `opacity: 0` selamanya, sehingga undangan tampak rusak total padahal tidak.
@@ -323,7 +335,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 ## 11. Progress
 
-**Keadaan sekarang (5 Sep 2026):** Step 1–10 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 37 test, `tsc`, `eslint`, `next build` hijau. Database kosong dan siap dilihat tamu. Ketiga deliverable PRD §1.9 sudah ada. Yang benar-benar belum pernah diperiksa manusia tinggal satu: bunyi musiknya.
+**Keadaan sekarang (5 Sep 2026):** Step 1–10 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 37 test, `tsc`, `eslint`, `next build` hijau. Database kosong dan siap dilihat tamu. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi** — tidak ada lagi utang verifikasi yang tersisa. Step 11 (pratinjau tautan + ikon) menyusul sesudahnya.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
@@ -336,6 +348,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 9 — README.** 11 bagian: cara jalan lokal · setup dua URL database beserta alasan port 6543 vs 5432 · daftar fitur dipetakan ke PRD §1.5 dan §1.6 · arsitektur + di mana state disimpan + kontrak API · diagram alur data RSVP **dengan perintah `curl` yang bisa dijalankan pembaca** untuk membuktikan sendiri bahwa server tidak percaya kiriman client · keputusan teknis termasuk tabel library yang sengaja ditolak dan alasan turun ke Prisma 6 · aksesibilitas & performa · testing · deploy · **disclosure AI** (dipisah: yang dibantu AI, yang tetap keputusan manusia, dan yang diverifikasi ulang — termasuk dua saran AI yang dibatalkan setelah diuji) · kredit. Empat klaim dikoreksi setelah dicek ke berkasnya: ukuran audio 4,4 MB, host pooler `aws-0`, dan tombol musik disembunyikan oleh `Invitation` (bukan oleh `MusicToggle` sendiri). Tautan demo & repo masih placeholder sampai Step 10.
 - [x] **Step 9b — Bersih-bersih data uji + perbaikan keadaan kosong.** Lima baris data uji (3 RSVP, 2 ucapan — semuanya buatan sesi verifikasi, dalam rentang 40 detik) dihapus dari Supabase; kedua tabel kini **0 baris** dan siap dilihat tamu. Justru setelah tabelnya kosong terlihat satu cacat yang mustahil tampak sebelumnya: ringkasan RSVP berbunyi **"0 HADIR · 0 BERHALANGAN · 0 ORANG"** kepada tamu pertama — terbaca seperti halaman rusak. Sekarang barisnya baru muncul kalau `attending + notAttending > 0`. **Kedua arah** diuji terhadap database sungguhan: tabel kosong → baris hilang; satu RSVP masuk → baris kembali berbunyi "1 HADIR · 0 BERHALANGAN · 2 ORANG"; baris uji itu lalu ikut dihapus.
 - [x] **Step 10 — Deploy.** Repo public `shevasatrian/invitato-wedding-invitation` (61 blob, diverifikasi **dari sisi GitHub** lewat API tree — bukan cuma dari disk). Sebelum push, password database dicari di seluruh file terlacak **dan seluruh riwayat commit**: nihil. Project Vercel tersambung otomatis ke repo; 2 env var × 3 environment terpasang sebagai Secret; `prisma migrate deploy` menjawab "No pending migrations" (skema sudah benar sejak Step 5). Production **READY** dan **terbuka untuk umum** — tidak ada Deployment Protection yang menghadang penilai. Diverifikasi langsung ke URL production: halaman `200`, `GET /api/rsvp` → `{0,0,0}`, `POST` nama 1 huruf → **400** berisi `fieldErrors`, body bukan JSON → **400**, dan **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` tersimpan sebagai **0** — server production tidak percaya kiriman client. Kedua baris uji lalu dihapus; tabel kembali 0 baris dan keadaan kosong terkonfirmasi benar (ringkasan RSVP tidak tampil).
+- [x] **Step 11 — Pratinjau tautan & ikon.** Dua celah ditemukan lewat pemeriksaan `<head>` production, bukan perkiraan. **(1) `og:image` tidak ada** — link undangan yang dibagikan di WhatsApp hanya menampilkan teks tanpa foto, padahal di situlah undangan digital sebenarnya beredar. Sekarang `app/opengraph-image.jpg` 1200x630 (69 KB) dari `moment.webp`, satu-satunya foto lanskap; potongannya dipilih setelah **melihat** tiga varian — `attention` menang karena `center` memotong ekor gaun. `twitter:image` ikut terisi sendiri tanpa berkas kedua, terbukti dari kode Next (`resolve-metadata.js:637`: `if (!hasTwImages) autoFillProps.images = openGraph.images`). **(2) Favicon masih logo Next.js** — `app/favicon.ico` masuk di commit scaffold `4a4d68b` dan tidak pernah disentuh, jadi tab tamu menampilkan huruf N di sebelah nama pengantin. Diganti `icon.png` + `apple-icon.png` berisi ornamen belah ketupat yang sama dengan `Divider`, diuji keterbacaannya di 32px (bukan cuma 512px). `metadataBase` diisi dari `site.url` yang baru di `lib/config.ts` supaya URL gambar jadi absolut — WhatsApp mengabaikan URL relatif.
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
 
@@ -359,6 +372,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `9035ede` | README |
 | `df4bd6a` | sembunyikan ringkasan RSVP saat belum ada isian + hapus data uji |
 | `fa85504` | catat seluruh keadaan project di CLAUDE.md |
+| `1fdc94b` | isi tautan demo & repo, `.vercelignore`, catat Step 10 selesai |
 
 ---
 
@@ -366,7 +380,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| Bunyi musik belum pernah diverifikasi manusia — satu-satunya hal yang tidak bisa diverifikasi dari sini sama sekali | **butuh user, satu-satunya yang tersisa** |
+| ~~Bunyi musik belum pernah diverifikasi manusia~~ | **lunas 5 Sep 2026** — user membuka URL production, klik Open Invitation, musik terdengar dan toggle berfungsi |
 | ~~Tautan Demo & Repository di README masih placeholder~~ | lunas di Step 10 |
 | ~~`next build` belum pernah dijalankan di lingkungan Vercel~~ | lunas di Step 10 — build Vercel 31 detik, hijau |
 
@@ -402,7 +416,7 @@ Tamu klik "Kirim"
 | Hal | Status |
 |---|---|
 | **Musik latar** — SUDAH. "Romantic Piano Inspiring" oleh PaulYudin, Pixabay Content License, di `public/audio/backsound.mp3` (4,4 MB, 256 kbps). Kredit ada di footer + `lib/config.ts`. | selesai |
-| **Uji dengar musik** — playback nyata belum bisa diverifikasi di sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. Perlu user membuka `localhost:3000` lalu klik "Open Invitation" sendiri. | **belum** |
+| **Uji dengar musik** — sudah. User membuka URL production dan mengonfirmasi musiknya terdengar. Ini tidak pernah bisa diverifikasi dari sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. | selesai |
 | **Kredensial Supabase** — sudah. `.env` ada di disk (region `ap-northeast-2`, pooler `:6543` untuk runtime + `:5432` untuk migrate), terkonfirmasi diabaikan `.gitignore`. Migrasi `20260904124153_init` sudah diterapkan. | selesai |
 | **Push GitHub** — sudah. Login sebagai `shevasatrian`, repo public dibuat lewat `gh repo create --source=. --push`. | selesai |
 | **Vercel** — sudah. Project tersambung repo, env var terpasang, migrasi diterapkan, production live. | selesai |
