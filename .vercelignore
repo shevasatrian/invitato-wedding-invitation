@@ -1,0 +1,5 @@
+# Berkas rahasia tidak boleh ikut terunggah ke Vercel lewat CLI.
+# Nilai DATABASE_URL & DIRECT_URL untuk production disimpan di
+# Settings > Environment Variables, bukan di berkas.
+.env*
+!.env.example

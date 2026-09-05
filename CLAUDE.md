@@ -323,7 +323,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 ## 11. Progress
 
-**Keadaan sekarang (4 Sep 2026):** Step 1–9 selesai. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan. 37 test, `tsc`, `eslint`, `next build` hijau. Database kosong dan siap dilihat tamu. **Step 10 (deploy) ditahan atas permintaan user.** Yang benar-benar belum pernah diperiksa manusia hanya satu: bunyi musiknya.
+**Keadaan sekarang (5 Sep 2026):** Step 1–10 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 37 test, `tsc`, `eslint`, `next build` hijau. Database kosong dan siap dilihat tamu. Ketiga deliverable PRD §1.9 sudah ada. Yang benar-benar belum pernah diperiksa manusia tinggal satu: bunyi musiknya.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
@@ -335,7 +335,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 8 — Polish & verifikasi.** Empat cacat aksesibilitas nyata ditemukan lewat pengukuran, lalu diperbaiki. **(1) Kontras** — 13 elemen di bawah ambang AA; sekarang **54 elemen diperiksa, 0 gagal** (aturannya di §5, plus token `stone` dinaikkan). **(2) Heading hilang** — section Wedding Details sama sekali tanpa heading padahal nav drawer menautkannya, jadi pengguna pembaca layar yang berpindah lewat daftar heading akan melewatinya; "Save the Date" kini `<h2>` dan nama acara `<h3>`, tampilan tidak berubah sedikit pun. **(3) Penanda fokus** — 8 kontrol (hamburger, 5 tautan nav, tombol musik, tombol tutup lightbox) tidak punya penanda fokus sama sekali; sekarang **26 dari 26** punya. **(4) Bahasa** — section RSVP & Kind Words berbahasa Indonesia di dalam halaman `lang="en"`, kini ditandai `lang="id"` lewat prop baru di `Section`, supaya pembaca layar tidak melafalkan "Kirim Konfirmasi" dengan aturan Inggris. Responsif diukur ulang: **375px** (scrollW 360, aside tersembunyi, form 304px) · **768px** (form dikunci 480px) · **1440px** (aside sticky 913px + kolom main 512px) — tanpa overflow horizontal di ketiganya. `prefers-reduced-motion` sudah ada sejak Step 3 dan terkonfirmasi sampai ke browser. 37 test, `tsc`, `eslint`, `next build` semua hijau.
 - [x] **Step 9 — README.** 11 bagian: cara jalan lokal · setup dua URL database beserta alasan port 6543 vs 5432 · daftar fitur dipetakan ke PRD §1.5 dan §1.6 · arsitektur + di mana state disimpan + kontrak API · diagram alur data RSVP **dengan perintah `curl` yang bisa dijalankan pembaca** untuk membuktikan sendiri bahwa server tidak percaya kiriman client · keputusan teknis termasuk tabel library yang sengaja ditolak dan alasan turun ke Prisma 6 · aksesibilitas & performa · testing · deploy · **disclosure AI** (dipisah: yang dibantu AI, yang tetap keputusan manusia, dan yang diverifikasi ulang — termasuk dua saran AI yang dibatalkan setelah diuji) · kredit. Empat klaim dikoreksi setelah dicek ke berkasnya: ukuran audio 4,4 MB, host pooler `aws-0`, dan tombol musik disembunyikan oleh `Invitation` (bukan oleh `MusicToggle` sendiri). Tautan demo & repo masih placeholder sampai Step 10.
 - [x] **Step 9b — Bersih-bersih data uji + perbaikan keadaan kosong.** Lima baris data uji (3 RSVP, 2 ucapan — semuanya buatan sesi verifikasi, dalam rentang 40 detik) dihapus dari Supabase; kedua tabel kini **0 baris** dan siap dilihat tamu. Justru setelah tabelnya kosong terlihat satu cacat yang mustahil tampak sebelumnya: ringkasan RSVP berbunyi **"0 HADIR · 0 BERHALANGAN · 0 ORANG"** kepada tamu pertama — terbaca seperti halaman rusak. Sekarang barisnya baru muncul kalau `attending + notAttending > 0`. **Kedua arah** diuji terhadap database sungguhan: tabel kosong → baris hilang; satu RSVP masuk → baris kembali berbunyi "1 HADIR · 0 BERHALANGAN · 2 ORANG"; baris uji itu lalu ikut dihapus.
-- [ ] **Step 10 — Deploy** Vercel + Supabase — **DITAHAN atas permintaan user.** Semua pekerjaan kode sudah selesai; yang tersisa hanya langkah yang melibatkan akun user (push GitHub, import Vercel, isi env di sana, `npm run db:deploy`). Jangan mulai tanpa aba-aba baru.
+- [x] **Step 10 — Deploy.** Repo public `shevasatrian/invitato-wedding-invitation` (61 blob, diverifikasi **dari sisi GitHub** lewat API tree — bukan cuma dari disk). Sebelum push, password database dicari di seluruh file terlacak **dan seluruh riwayat commit**: nihil. Project Vercel tersambung otomatis ke repo; 2 env var × 3 environment terpasang sebagai Secret; `prisma migrate deploy` menjawab "No pending migrations" (skema sudah benar sejak Step 5). Production **READY** dan **terbuka untuk umum** — tidak ada Deployment Protection yang menghadang penilai. Diverifikasi langsung ke URL production: halaman `200`, `GET /api/rsvp` → `{0,0,0}`, `POST` nama 1 huruf → **400** berisi `fieldErrors`, body bukan JSON → **400**, dan **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` tersimpan sebagai **0** — server production tidak percaya kiriman client. Kedua baris uji lalu dihapus; tabel kembali 0 baris dan keadaan kosong terkonfirmasi benar (ringkasan RSVP tidak tampil).
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
 
@@ -358,6 +358,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `f8c1ce6` | perbaikan a11y: kontras, heading, fokus, bahasa |
 | `9035ede` | README |
 | `df4bd6a` | sembunyikan ringkasan RSVP saat belum ada isian + hapus data uji |
+| `fa85504` | catat seluruh keadaan project di CLAUDE.md |
 
 ---
 
@@ -365,9 +366,9 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 | Hal | Kapan lunas |
 |---|---|
-| Bunyi musik belum pernah diverifikasi manusia — satu-satunya hal yang tidak bisa diverifikasi dari sini sama sekali | butuh user |
-| Tautan Demo & Repository di README masih placeholder | Step 10 |
-| `next build` belum pernah dijalankan di lingkungan Vercel | Step 10 |
+| Bunyi musik belum pernah diverifikasi manusia — satu-satunya hal yang tidak bisa diverifikasi dari sini sama sekali | **butuh user, satu-satunya yang tersisa** |
+| ~~Tautan Demo & Repository di README masih placeholder~~ | lunas di Step 10 |
+| ~~`next build` belum pernah dijalankan di lingkungan Vercel~~ | lunas di Step 10 — build Vercel 31 detik, hijau |
 
 ---
 
@@ -403,8 +404,8 @@ Tamu klik "Kirim"
 | **Musik latar** — SUDAH. "Romantic Piano Inspiring" oleh PaulYudin, Pixabay Content License, di `public/audio/backsound.mp3` (4,4 MB, 256 kbps). Kredit ada di footer + `lib/config.ts`. | selesai |
 | **Uji dengar musik** — playback nyata belum bisa diverifikasi di sini: browser menolak `play()` dengan `NotAllowedError` karena klik otomatis bukan gestur pengguna asli. Perlu user membuka `localhost:3000` lalu klik "Open Invitation" sendiri. | **belum** |
 | **Kredensial Supabase** — sudah. `.env` ada di disk (region `ap-northeast-2`, pooler `:6543` untuk runtime + `:5432` untuk migrate), terkonfirmasi diabaikan `.gitignore`. Migrasi `20260904124153_init` sudah diterapkan. | selesai |
-| **Push GitHub** — butuh `gh auth login` dari user (bisa dijalankan di sesi ini dengan mengetik `! gh auth login`). Minta konfirmasi sebelum push pertama. | belum, ditahan |
-| **Import ke Vercel** + isi `DATABASE_URL` & `DIRECT_URL` di dashboard-nya, lalu `npm run db:deploy`. | belum, ditahan |
+| **Push GitHub** — sudah. Login sebagai `shevasatrian`, repo public dibuat lewat `gh repo create --source=. --push`. | selesai |
+| **Vercel** — sudah. Project tersambung repo, env var terpasang, migrasi diterapkan, production live. | selesai |
 
 ---
 
@@ -414,7 +415,15 @@ Dikirim lewat https://forms.gle/goztBD5BejTkkhGU7
 
 1. Link GitHub repository
 2. Live deployment URL yang bisa dibuka
-3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** — **SUDAH**, lihat `README.md` (11 bagian). Yang masih kosong hanya dua tautan di paling atas: Demo dan Repository, keduanya baru ada setelah Step 10.
+3. README: cara jalan lokal · arsitektur & keputusan teknis · setup env & database · **disclosure AI tools** — **SUDAH**, lihat `README.md` (11 bagian). Kedua tautan di paling atas sudah terisi, dan bagian 9 kini memuat perintah `curl` ke URL production yang bisa dijalankan penilai sendiri.
+
+**Ketiganya sudah siap dikirim:**
+
+| Deliverable | Nilai |
+|---|---|
+| Repository | <https://github.com/shevasatrian/invitato-wedding-invitation> |
+| Live deployment | <https://invitato-wedding-invitation-navy.vercel.app> |
+| README | `README.md` di root repo |
 
 Tambahan: ringkasan alur data (klik Submit → validasi client → `fetch` → route handler → Zod → Prisma → Postgres → response → UI) sebagai bekal interview.
 

@@ -4,8 +4,8 @@ Website undangan pernikahan satu halaman: halaman sampul sebagai gerbang, isi un
 
 Dibuat sebagai **hometask assessment rekrutmen Invitato**, mengikuti template referensi [rickyfelly](https://invitato.net/template-rickyfelly/?code=D3EC9693640).
 
-- **Demo:** _(diisi setelah deploy)_
-- **Repository:** _(diisi setelah push)_
+- **Demo:** <https://invitato-wedding-invitation-navy.vercel.app>
+- **Repository:** <https://github.com/shevasatrian/invitato-wedding-invitation>
 
 ---
 
@@ -30,8 +30,8 @@ Dibuat sebagai **hometask assessment rekrutmen Invitato**, mengikuti template re
 **Prasyarat:** Node.js 20 atau lebih baru (dikembangkan dengan v24.18) dan satu database PostgreSQL. Paling praktis: project gratis di [Supabase](https://supabase.com).
 
 ```bash
-git clone <url-repository>
-cd <nama-folder>
+git clone https://github.com/shevasatrian/invitato-wedding-invitation.git
+cd invitato-wedding-invitation
 npm install
 
 cp .env.example .env      # lalu isi dua URL-nya, lihat bagian 2
@@ -285,6 +285,24 @@ Tiga hal yang membuat test ini bukan sekadar formalitas:
 4. Terapkan migrasi ke database production: `npm run db:deploy`.
 
 Folder `prisma/migrations/` ikut ter-commit — itulah yang dipakai `prisma migrate deploy` untuk membentuk tabel di database production.
+
+Project Vercel tersambung ke repository ini, jadi setiap push ke `main` memicu deploy production baru. Berkas rahasia tidak pernah ikut terkirim: `.env` diabaikan `.gitignore` (untuk git) dan `.vercelignore` (untuk deploy lewat CLI).
+
+**Cara memastikan deploy benar-benar hidup**, tanpa membuka browser — jalur baca dan jalur tulis sekaligus:
+
+```bash
+URL=https://invitato-wedding-invitation-navy.vercel.app
+
+# jalur baca: server mengambil ringkasan dari Postgres
+curl -s $URL/api/rsvp
+# -> {"attending":0,"notAttending":0,"totalPax":0}
+
+# jalur tulis: server memvalidasi ulang dan tidak percaya kiriman client
+curl -s -X POST $URL/api/rsvp \
+  -H "Content-Type: application/json" \
+  -d '{"guestName":"Uji","attendance":"NOT_ATTENDING","guestCount":9}'
+# -> 201, tetapi guestCount tersimpan 0 — bukan 9
+```
 
 ---
 
