@@ -46,6 +46,37 @@ const en = {
     dear: "Dear Mr/Mrs/Ms,",
     open: "Open Invitation",
   },
+
+  verse: {
+    text:
+      "I was sound asleep, but in my dreams I was wide awake. " +
+      "Oh, listen! It's the sound of my lover knocking, calling!",
+    source: "Song of Songs 5:2 MSG",
+  },
+
+  welcoming: {
+    /** Pemenggalan barisnya ikut kamus, dirender dengan whitespace-pre-line. */
+    intro: `Together with joyful hearts and the grace of God,
+we cordially request the honour of your presence
+at the wedding celebration of`,
+  },
+
+  couple: {
+    title: "The Groom & Bride",
+    sonOf: "The Son of",
+    daughterOf: "The Daughter of",
+    instagram: "Open Instagram of {name}",
+  },
+
+  countdown: {
+    title: "Counting the Days!",
+    days: "Days",
+    hours: "Hours",
+    minutes: "Minutes",
+    seconds: "Seconds",
+    over: "The awaited day has arrived.",
+    save: "Save the Date",
+  },
 };
 
 export type Dict = typeof en;
@@ -78,6 +109,36 @@ const id: Dict = {
     theWeddingOf: "Pernikahan",
     dear: "Kepada Bapak/Ibu/Saudara,",
     open: "Buka Undangan",
+  },
+
+  verse: {
+    text:
+      "Aku tidur, tetapi hatiku bangun. Dengarlah, kekasihku mengetuk, " +
+      "memanggil-manggil!",
+    source: "Kidung Agung 5:2",
+  },
+
+  welcoming: {
+    intro: `Dengan penuh sukacita dan atas rahmat Tuhan,
+kami mengundang Bapak/Ibu/Saudara untuk hadir
+di pernikahan kami`,
+  },
+
+  couple: {
+    title: "Mempelai",
+    sonOf: "Putra dari",
+    daughterOf: "Putri dari",
+    instagram: "Buka Instagram {name}",
+  },
+
+  countdown: {
+    title: "Menghitung Hari!",
+    days: "Hari",
+    hours: "Jam",
+    minutes: "Menit",
+    seconds: "Detik",
+    over: "Hari yang dinanti telah tiba.",
+    save: "Simpan Tanggalnya",
   },
 };
 

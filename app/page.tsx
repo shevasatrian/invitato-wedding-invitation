@@ -35,11 +35,11 @@ export default async function Home({
   const guestName = to?.trim() || undefined;
 
   return (
-    <InvitationShell lang={lang}>
+    <InvitationShell t={t} lang={lang}>
       <Invitation t={t} lang={lang} guestName={guestName}>
-        <Welcoming />
-        <CoupleProfile />
-        <Countdown />
+        <Welcoming t={t} />
+        <CoupleProfile t={t} />
+        <Countdown t={t} />
         <EventDetails />
         <LocationMap />
         <Rsvp />

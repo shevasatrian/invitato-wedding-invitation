@@ -2,7 +2,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import CoupleNames from "@/components/ui/CoupleNames";
 import LanguageToggle from "@/components/ui/LanguageToggle";
-import { couple, verse, images } from "@/lib/config";
+import { couple, images } from "@/lib/config";
 import type { Dict, Lang } from "@/lib/i18n";
 
 /**
@@ -50,11 +50,11 @@ export default function Cover({
         </h1>
 
         <p className="mt-6 max-w-sm font-body text-base leading-relaxed text-white/85 italic">
-          &ldquo;{verse.text}&rdquo;
+          &ldquo;{t.verse.text}&rdquo;
         </p>
 
         <p className="mt-3 font-display text-[0.65rem] tracking-[0.2em] text-white/70 uppercase">
-          &mdash; {verse.source}
+          &mdash; {t.verse.source}
         </p>
 
         {guestName && (

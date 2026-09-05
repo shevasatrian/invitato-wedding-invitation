@@ -10,7 +10,6 @@ export const couple = {
   groom: {
     fullName: "Ricky Ravanelli, S.E.",
     shortName: "Ricky",
-    role: "The Son of",
     father: "Mr. Hendra Ravanelli",
     mother: "Mrs. Lianawati Ravanelli",
     instagram: "groomricky",
@@ -19,7 +18,6 @@ export const couple = {
   bride: {
     fullName: "Fellycia Indriyani Pratama, S.I.Kom.",
     shortName: "Fellycia",
-    role: "The Daughter of",
     father: "Mr. Bambang Pratama",
     mother: "Mrs. Sylvia Indriyani",
     instagram: "bridefelly",
@@ -28,13 +26,8 @@ export const couple = {
   hashtag: "#RickyFellinlove",
 } as const;
 
-export const verse = {
-  text:
-    "I was sound asleep, but in my dreams I was wide awake. " +
-    "Oh, listen! It's the sound of my lover knocking, calling!",
-  source: "Song of Songs 5:2 MSG",
-} as const;
 
+/** Dipindah ke lib/i18n.ts pada Task 5, bersama section Gallery yang memakainya. */
 export const quote =
   "True love is when both people think they're the lucky one";
 

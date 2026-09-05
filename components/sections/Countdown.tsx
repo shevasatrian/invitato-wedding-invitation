@@ -7,10 +7,11 @@ import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
 import { couple, events, images, weddingDate } from "@/lib/config";
 import { getTimeLeft, googleCalendarUrl, pad, type TimeLeft } from "@/lib/utils";
+import type { Dict } from "@/lib/i18n";
 
 const matrimony = events[0];
 
-export default function Countdown() {
+export default function Countdown({ t }: { t: Dict }) {
   /**
    * Sengaja mulai dari `null`, bukan dari hasil hitungan.
    *
@@ -47,25 +48,25 @@ export default function Countdown() {
       <div className="relative text-center">
         <Reveal>
           <h2 className="font-display text-2xl tracking-[0.12em] text-white">
-            Counting the Days!
+            {t.countdown.title}
           </h2>
         </Reveal>
 
         <Reveal delay={120}>
           <div className="mt-10 flex items-start justify-center gap-3 sm:gap-5">
-            <Unit value={timeLeft?.days} label="Days" digits={3} />
+            <Unit value={timeLeft?.days} label={t.countdown.days} digits={3} />
             <Colon />
-            <Unit value={timeLeft?.hours} label="Hours" />
+            <Unit value={timeLeft?.hours} label={t.countdown.hours} />
             <Colon />
-            <Unit value={timeLeft?.minutes} label="Minutes" />
+            <Unit value={timeLeft?.minutes} label={t.countdown.minutes} />
             <Colon />
-            <Unit value={timeLeft?.seconds} label="Seconds" />
+            <Unit value={timeLeft?.seconds} label={t.countdown.seconds} />
           </div>
         </Reveal>
 
         {timeLeft?.isOver && (
           <p className="mt-8 font-body text-lg text-white/90 italic">
-            Hari yang dinanti telah tiba.
+            {t.countdown.over}
           </p>
         )}
 
@@ -81,7 +82,7 @@ export default function Countdown() {
             external
             className="mt-12 border border-white/50 bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-ink"
           >
-            Save the Date
+            {t.countdown.save}
           </Button>
         </Reveal>
       </div>

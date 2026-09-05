@@ -4,16 +4,17 @@ import Reveal from "@/components/ui/Reveal";
 import Divider from "@/components/ui/Divider";
 import Button from "@/components/ui/Button";
 import { couple } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /** Profil kedua mempelai beserta nama orang tua masing-masing. */
-export default function CoupleProfile() {
+export default function CoupleProfile({ t }: { t: Dict }) {
   return (
     <Section id="couple">
-      <SectionTitle>The Groom &amp; Bride</SectionTitle>
+      <SectionTitle>{t.couple.title}</SectionTitle>
 
-      <PersonCard person={couple.groom} />
+      <PersonCard person={couple.groom} role={t.couple.sonOf} t={t} />
       <Divider className="my-14 text-ink/50" />
-      <PersonCard person={couple.bride} />
+      <PersonCard person={couple.bride} role={t.couple.daughterOf} t={t} />
     </Section>
   );
 }
@@ -24,8 +25,13 @@ export default function CoupleProfile() {
  */
 function PersonCard({
   person,
+  role,
+  t,
 }: {
   person: typeof couple.groom | typeof couple.bride;
+  /** "The Son of" atau "The Daughter of" — berbeda per mempelai. */
+  role: string;
+  t: Dict;
 }) {
   return (
     <div className="mt-12 text-center">
@@ -49,7 +55,7 @@ function PersonCard({
         </h3>
 
         <p className="mt-4 font-body text-base font-semibold text-ink/80">
-          {person.role}
+          {role}
         </p>
         <p className="font-body text-base text-ink/80">{person.father}</p>
         <p className="font-script text-lg text-ink/80">&amp;</p>
@@ -59,7 +65,7 @@ function PersonCard({
           href={`https://www.instagram.com/${person.instagram}`}
           external
           className="mt-6 px-6 py-2 text-xs"
-          aria-label={`Buka Instagram ${person.fullName}`}
+          aria-label={t.couple.instagram.replace("{name}", person.fullName)}
         >
           @{person.instagram}
         </Button>

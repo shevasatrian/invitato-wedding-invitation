@@ -4,9 +4,10 @@ import Reveal from "@/components/ui/Reveal";
 import Divider from "@/components/ui/Divider";
 import CoupleNames from "@/components/ui/CoupleNames";
 import { couple, images } from "@/lib/config";
+import type { Dict } from "@/lib/i18n";
 
 /** Sambutan pembuka, tepat setelah tamu menekan "Open Invitation". */
-export default function Welcoming() {
+export default function Welcoming({ t }: { t: Dict }) {
   return (
     <Section id="welcoming" className="relative overflow-hidden bg-cream">
       {/* Tekstur kain sutra dari asset pack, dibuat sangat samar supaya
@@ -21,12 +22,10 @@ export default function Welcoming() {
 
       <div className="relative text-center">
         <Reveal>
-          <p className="font-body text-lg text-ink/75">
-            Together with joyful hearts and the grace of God,
-            <br />
-            we cordially request the honour of your presence
-            <br />
-            at the wedding celebration of
+          {/* whitespace-pre-line: pemenggalan barisnya ikut kamus, bukan
+              <br /> yang dipaku di sini — panjang kalimat tiap bahasa beda. */}
+          <p className="font-body text-lg whitespace-pre-line text-ink/75">
+            {t.welcoming.intro}
           </p>
         </Reveal>
 

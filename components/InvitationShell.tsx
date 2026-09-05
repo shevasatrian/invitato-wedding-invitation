@@ -1,7 +1,7 @@
 import Image from "next/image";
 import CoupleNames from "@/components/ui/CoupleNames";
-import { verse, images } from "@/lib/config";
-import type { Lang } from "@/lib/i18n";
+import { images } from "@/lib/config";
+import type { Dict, Lang } from "@/lib/i18n";
 
 /**
  * Kerangka halaman, meniru cara template Invitato tampil di desktop.
@@ -17,9 +17,11 @@ import type { Lang } from "@/lib/i18n";
  * menghitung sendiri margin kolom kanan supaya tidak tertimpa.
  */
 export default function InvitationShell({
+  t,
   lang,
   children,
 }: {
+  t: Dict;
   /**
    * Bahasa isi undangan. Dipasang di <main>, bukan di <html>, karena
    * layout tidak menerima searchParams. Pembaca layar memakai atribut
@@ -30,7 +32,7 @@ export default function InvitationShell({
 }) {
   return (
     <div className="mx-auto flex max-w-[1600px]">
-      <DesktopPanel />
+      <DesktopPanel t={t} />
 
       {/* 32rem = 512px, sedikit lebih lebar dari layar HP terbesar,
           sehingga tata letak mobile tetap terasa lapang di desktop. */}
@@ -51,7 +53,7 @@ export default function InvitationShell({
  * di halaman sampul: pembaca layar tidak perlu mendengar nama pengantin dan
  * ayat yang sama dua kali.
  */
-function DesktopPanel() {
+function DesktopPanel({ t }: { t: Dict }) {
   return (
     <aside
       aria-hidden="true"
@@ -73,7 +75,7 @@ function DesktopPanel() {
 
       <div className="relative flex h-full flex-col justify-center p-14 xl:p-20">
         <p className="font-display text-sm tracking-[0.32em] text-cream/75 uppercase">
-          The Wedding Of
+          {t.cover.theWeddingOf}
         </p>
 
         <p className="mt-5 font-display text-5xl tracking-[0.06em] text-cream uppercase xl:text-6xl">
@@ -81,11 +83,11 @@ function DesktopPanel() {
         </p>
 
         <p className="mt-8 max-w-md font-body text-lg leading-relaxed text-cream/80 italic">
-          &ldquo;{verse.text}&rdquo;
+          &ldquo;{t.verse.text}&rdquo;
         </p>
 
         <p className="mt-3 font-body text-base text-cream/65">
-          &mdash; {verse.source}
+          &mdash; {t.verse.source}
         </p>
       </div>
     </aside>
