@@ -39,9 +39,36 @@ export default function Invitation({
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
+    /**
+     * Matikan pemulihan posisi scroll bawaan browser.
+     *
+     * Ini yang paling menentukan. Saat tamu me-refresh di tengah undangan,
+     * browser mengembalikan posisi scroll terakhirnya — dan itu terjadi
+     * SETELAH effect ini berjalan, jadi menggulir ke atas dari sini saja
+     * tidak cukup: hasilnya langsung ditimpa. Sudah diukur.
+     *
+     * Akibatnya kalau dibiarkan: `opened` selalu mulai dari false, halaman
+     * terkunci `overflow: hidden` di posisi lama, sampul di luar layar, dan
+     * tombol Open Invitation tidak bisa dijangkau sama sekali.
+     *
+     * Berpindah bahasa tidak terpengaruh — itu navigasi dalam aplikasi yang
+     * diurus router Next, bukan pemulihan bawaan browser.
+     */
+    history.scrollRestoration = "manual";
+
     // Selama sampul belum dibuka, halaman tidak bisa di-scroll —
     // inilah yang membuat sampul berfungsi sebagai gerbang.
     document.body.classList.toggle("scroll-locked", !opened);
+
+    /**
+     * Gerbang terkunci berarti layar HARUS berada di sampul. Dua hal itu satu
+     * aturan yang sama, jadi keduanya ditegakkan berdampingan di sini — apa pun
+     * penyebab halaman ter-mount dalam keadaan tergulir. behavior "instant"
+     * wajib karena globals.css memasang `scroll-behavior: smooth`, dan gulir
+     * beranimasi dari tengah halaman bisa terputus di tengah jalan.
+     */
+    if (!opened) window.scrollTo({ top: 0, behavior: "instant" });
+
     return () => document.body.classList.remove("scroll-locked");
   }, [opened]);
 

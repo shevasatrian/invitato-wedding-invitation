@@ -263,6 +263,34 @@ sedangkan `next build` versi ini memakai Turbopack. Sudah diuji dengan build ber
 (`rm -rf .next`): tagnya tetap tidak muncul. Berkasnya dibuang daripada mengirim
 berkas yang tidak berfungsi. Pelajarannya: dokumentasi menjanjikan, build yang membuktikan.
 
+### Pemulihan scroll browser terjadi SETELAH effect React
+
+Bug nyata yang ditemukan user, dan perbaikan pertama gagal karena salah menebak urutannya.
+
+**Gejala:** tamu membuka undangan, scroll ke tengah, lalu me-refresh. Halaman tidak
+kembali ke sampul, tidak bisa di-scroll, dan tombol Open Invitation di luar layar —
+benar-benar terjebak, tidak ada jalan keluar selain menutup tab.
+
+**Rantai sebabnya empat lapis:**
+
+1. `opened` selalu mulai dari `false` — tidak ada yang menyimpannya melewati reload
+2. Browser memulihkan posisi scroll (`history.scrollRestoration` default `"auto"`)
+3. Effect memasang `.scroll-locked`, yaitu `overflow: hidden`
+4. **`overflow: hidden` MEMBEKUKAN posisi, bukan mengembalikannya ke atas**
+
+**Yang membuat perbaikan pertama gagal:** menambahkan `window.scrollTo(0, 0)` di dalam
+effect tidak cukup, karena **pemulihan browser berjalan setelah effect React** dan
+langsung menimpanya. Diukur: posisi tetap 5002 padahal `scrollTo` sudah dipanggil.
+
+**Perbaikannya** `history.scrollRestoration = "manual"` di `components/Invitation.tsx`.
+Berpindah bahasa tidak terpengaruh karena itu navigasi dalam aplikasi yang diurus router
+Next, bukan pemulihan bawaan browser — sudah diuji, geser 0px, dan tombol Back juga tetap
+mengembalikan posisi dengan benar.
+
+**Pelajarannya:** kalau sebuah state client mengunci tampilan, state itu harus juga
+menegakkan posisi layar. Mengunci tanpa mengatur posisi menghasilkan jebakan yang hanya
+muncul setelah refresh — keadaan yang tidak pernah dilalui saat mengembangkan fitur.
+
 ### `npm run build` gagal EPERM kalau dev/prod server masih hidup
 
 Di Windows, `prisma generate` tidak bisa mengganti `query_engine-windows.dll.node`
