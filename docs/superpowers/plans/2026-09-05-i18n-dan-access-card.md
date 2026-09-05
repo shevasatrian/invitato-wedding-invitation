@@ -325,7 +325,16 @@ git commit -m "feat(i18n): kamus dua bahasa dan pembacaan ?lang"
 
 ### Task 3: Toggle bahasa dan halaman sampul
 
-**Hasil pengukuran Task 1:** _(isi di sini: "opened BERTAHAN" atau "opened TER-RESET")_
+**Hasil pengukuran Task 1 (5 Sep 2026): `opened` BERTAHAN.** Diukur di dev server
+dengan `next/link` (soft navigation), bukan `<a>` — probe versi `<a>` di rencana awal
+akan memicu full reload dan memberi jawaban salah yang meyakinkan.
+
+Bukti berantai: terkunci sebelum dibuka (`true`) → terbuka setelah klik (`false`) →
+URL benar-benar berubah jadi `?probe=1` → **masih terbuka** sesudahnya, dan penanda
+`window` bertahan sehingga terbukti bukan reload. Posisi scroll juga diukur terpisah:
+**selisih 0px** dari 2500px berkat `scroll={false}`.
+
+**Keputusan: toggle dipasang di halaman sampul DAN nav drawer. Step 5 dikerjakan.**
 
 - Kalau **BERTAHAN** → pasang toggle di halaman sampul **dan** di nav drawer.
 - Kalau **TER-RESET** → pasang **hanya di halaman sampul**, dan lewati Step 5.
