@@ -36,7 +36,7 @@ export default async function Home({
 
   return (
     <InvitationShell lang={lang}>
-      <Invitation t={t} guestName={guestName}>
+      <Invitation t={t} lang={lang} guestName={guestName}>
         <Welcoming />
         <CoupleProfile />
         <Countdown />

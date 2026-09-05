@@ -40,6 +40,12 @@ const en = {
     /** Nama bahasa yang SEDANG TIDAK dipakai — itulah teks tombolnya. */
     other: "Bahasa Indonesia",
   },
+
+  cover: {
+    theWeddingOf: "The Wedding Of",
+    dear: "Dear Mr/Mrs/Ms,",
+    open: "Open Invitation",
+  },
 };
 
 export type Dict = typeof en;
@@ -66,6 +72,12 @@ const id: Dict = {
   language: {
     label: "Bahasa",
     other: "English",
+  },
+
+  cover: {
+    theWeddingOf: "Pernikahan",
+    dear: "Kepada Bapak/Ibu/Saudara,",
+    open: "Buka Undangan",
   },
 };
 

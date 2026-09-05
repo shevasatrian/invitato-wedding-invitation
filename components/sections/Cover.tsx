@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import CoupleNames from "@/components/ui/CoupleNames";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { couple, verse, images } from "@/lib/config";
+import type { Dict, Lang } from "@/lib/i18n";
 
 /**
  * Halaman sampul — yang pertama dilihat tamu.
@@ -11,10 +13,14 @@ import { couple, verse, images } from "@/lib/config";
  * gerbang: isi undangan baru bisa dijangkau setelah tamu membukanya.
  */
 export default function Cover({
+  t,
+  lang,
   /** Nama tamu dari `?to=` di URL. Kosong kalau tautannya tidak dipersonalisasi. */
   guestName,
   onOpen,
 }: {
+  t: Dict;
+  lang: Lang;
   guestName?: string;
   onOpen: () => void;
 }) {
@@ -36,7 +42,7 @@ export default function Cover({
 
       <div className="relative flex flex-col items-center">
         <p className="font-display text-[0.7rem] tracking-[0.35em] text-white/80 uppercase">
-          The Wedding Of
+          {t.cover.theWeddingOf}
         </p>
 
         <h1 className="mt-5 font-display text-4xl tracking-[0.05em] text-white uppercase sm:text-5xl">
@@ -53,7 +59,7 @@ export default function Cover({
 
         {guestName && (
           <p className="mt-10 font-body text-base text-white/85">
-            Dear Mr/Mrs/Ms,
+            {t.cover.dear}
             <span className="mt-1 block text-xl text-white">{guestName}</span>
           </p>
         )}
@@ -62,8 +68,15 @@ export default function Cover({
           onClick={onOpen}
           className="mt-10 border border-white/50 bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-ink"
         >
-          Open Invitation
+          {t.cover.open}
         </Button>
+
+        <LanguageToggle
+          lang={lang}
+          guestName={guestName}
+          t={t}
+          className="mt-6 font-ui text-[0.6rem] tracking-[0.2em] text-white/85 uppercase underline underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        />
       </div>
     </section>
   );

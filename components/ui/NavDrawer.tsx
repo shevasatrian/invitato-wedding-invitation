@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import CoupleNames from "@/components/ui/CoupleNames";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { couple, navLinks } from "@/lib/config";
-import type { Dict } from "@/lib/i18n";
+import type { Dict, Lang } from "@/lib/i18n";
 
 /**
  * Menu melayang di kiri bawah. Menekannya membuka panel gelap dari kanan
@@ -12,7 +13,15 @@ import type { Dict } from "@/lib/i18n";
  * Tautannya `<a href="#id">` biasa — perpindahan halusnya datang dari
  * `scroll-behavior: smooth` di globals.css, bukan dari JavaScript.
  */
-export default function NavDrawer({ t }: { t: Dict }) {
+export default function NavDrawer({
+  t,
+  lang,
+  guestName,
+}: {
+  t: Dict;
+  lang: Lang;
+  guestName?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -89,6 +98,21 @@ export default function NavDrawer({ t }: { t: Dict }) {
               </li>
             ))}
           </ul>
+
+          {/* Berpindah bahasa dari sini aman: state `opened` dan posisi
+              scroll terbukti bertahan (diukur, bukan diduga — lihat
+              docs/superpowers/plans, Task 1). */}
+          <p className="mt-10 text-right font-ui text-[0.6rem] tracking-[0.25em] text-white/60 uppercase">
+            {t.language.label}
+          </p>
+          <p className="mt-2 text-right">
+            <LanguageToggle
+              lang={lang}
+              guestName={guestName}
+              t={t}
+              className="font-display text-base tracking-[0.12em] text-white/90 underline underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            />
+          </p>
         </div>
 
         <p className="text-right font-body text-xs text-white/45">
