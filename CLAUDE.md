@@ -119,7 +119,7 @@ vitest.config.mts         ✅ alias @/ untuk test
 **Aturan yang dipegang konsisten:**
 - 1 file = 1 section, namanya sama dengan judul yang tampil. "Kode countdown di mana?" → `components/sections/Countdown.tsx`
 - Tidak ada string data acara yang di-hardcode di komponen. Semua dari `lib/config.ts`
-- Server Component secara default. `"use client"` hanya di 7 file yang ditandai di atas
+- Server Component secara default. `"use client"` hanya di 8 berkas: `Invitation`, `Countdown`, `Gallery`, `Rsvp`, `Wishes`, `Reveal`, `Lightbox`, `NavDrawer`
 - Keempat route handler berbentuk sama persis: `try/catch` → `safeParse` → query Prisma → `NextResponse.json`
 - Komentar hanya menjelaskan **kenapa**, bukan mengulang apa yang sudah jelas dari kode
 

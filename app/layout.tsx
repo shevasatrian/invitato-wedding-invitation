@@ -47,20 +47,18 @@ const parisienne = Parisienne({
 });
 
 /**
- * Gambar pratinjau tautan diambil Next dari app/opengraph-image.jpg lewat
- * konvensi nama berkas — tidak perlu disebut di sini. metadataBase yang
- * mengubah path-nya jadi URL absolut. Twitter mewarisi gambar yang sama,
- * jadi cukup satu berkas.
+ * Hanya `metadataBase` yang tinggal di sini.
+ *
+ * Layout tidak menerima `searchParams`, jadi ia tidak bisa tahu bahasa yang
+ * diminta tamu — judul dan deskripsi karena itu dibuat di `generateMetadata`
+ * pada app/page.tsx.
+ *
+ * Gambar pratinjau dan ikon tidak perlu disebut sama sekali: Next mengambilnya
+ * dari konvensi nama berkas (app/opengraph-image.jpg, app/icon.png). Tugas
+ * `metadataBase` adalah mengubah path-nya menjadi URL absolut, karena WhatsApp
+ * dan Facebook mengabaikan URL relatif saat mengambil pratinjau.
  */
 export const metadata: Metadata = {
-  /**
-   * Hanya metadataBase yang tinggal di sini, karena layout tidak menerima
-   * searchParams sehingga tidak bisa tahu bahasa yang diminta tamu. Judul
-   * dan deskripsi dibuat di generateMetadata pada app/page.tsx.
-   *
-   * Gambar pratinjau dan ikon tetap datang dari konvensi nama berkas
-   * (app/opengraph-image.jpg, app/icon.png) — tidak perlu disebut di sini.
-   */
   metadataBase: new URL(site.url),
 };
 

@@ -79,10 +79,10 @@ export function mapLinkUrl(query: string): string {
 }
 
 /**
- * Waktu relatif dalam Bahasa Indonesia untuk daftar wishes: "2 jam lalu".
- * Lewat 7 hari, tanggal penuh lebih berguna daripada "23 hari lalu".
- */
-/**
+ * Waktu relatif untuk daftar wishes: "2 jam lalu" atau "2 hours ago",
+ * mengikuti kamus. Lewat 7 hari, tanggal penuh lebih berguna daripada
+ * "23 hari lalu".
+ *
  * Menerima kamus utuh, bukan hanya `t.time`, karena tanggal yang sudah
  * lewat seminggu diformat memakai `t.locale`. Satu nilai locale di satu
  * tempat saja — kalau disalin ke dalam grup `time`, cepat atau lambat
