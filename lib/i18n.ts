@@ -41,6 +41,12 @@ const en = {
     other: "Bahasa Indonesia",
   },
 
+  meta: {
+    title: "The Wedding of Ricky & Fellycia",
+    description:
+      "Together with joyful hearts, we cordially request the honor of your presence at our wedding celebration — 26 December 2026, Semarang.",
+  },
+
   cover: {
     theWeddingOf: "The Wedding Of",
     dear: "Dear Mr/Mrs/Ms,",
@@ -200,6 +206,12 @@ const id: Dict = {
   language: {
     label: "Bahasa",
     other: "English",
+  },
+
+  meta: {
+    title: "Pernikahan Ricky & Fellycia",
+    description:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara untuk hadir di pernikahan kami — 26 Desember 2026, Semarang.",
   },
 
   cover: {

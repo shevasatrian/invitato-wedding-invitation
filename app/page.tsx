@@ -10,6 +10,34 @@ import Gallery from "@/components/sections/Gallery";
 import Wishes from "@/components/sections/Wishes";
 import Footer from "@/components/sections/Footer";
 import { dictionaries, pickLang } from "@/lib/i18n";
+import { site } from "@/lib/config";
+import type { Metadata } from "next";
+
+/**
+ * Judul dan deskripsi pratinjau tautan ikut bahasa yang dibagikan, sehingga
+ * tautan `?lang=id` yang dikirim ke grup WhatsApp memunculkan pratinjau
+ * berbahasa Indonesia.
+ */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}): Promise<Metadata> {
+  const { lang } = await searchParams;
+  const t = dictionaries[pickLang(lang)];
+
+  return {
+    title: t.meta.title,
+    description: t.meta.description,
+    openGraph: {
+      title: t.meta.title,
+      description: t.meta.description,
+      type: "website",
+      url: site.url,
+    },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
 /**
  * Halaman undangan. Isinya hanya susunan section, tanpa logika —

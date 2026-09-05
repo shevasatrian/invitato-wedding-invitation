@@ -123,12 +123,13 @@ export const music = {
 } as const;
 
 export const site = {
-  title: "The Wedding of Ricky & Fellycia",
-  description:
-    "Together with joyful hearts, we cordially request the honor of your presence at our wedding celebration — 26 December 2026, Semarang.",
-
-  // Alamat undangan setelah tayang. Dipakai metadataBase di app/layout.tsx
-  // supaya URL gambar pratinjau jadi absolut — WhatsApp dan Facebook
-  // mengabaikan URL relatif saat mengambil pratinjau tautan.
+  /**
+   * Alamat undangan setelah tayang. Dipakai metadataBase di app/layout.tsx
+   * supaya URL gambar pratinjau jadi absolut — WhatsApp dan Facebook
+   * mengabaikan URL relatif saat mengambil pratinjau tautan.
+   *
+   * Judul dan deskripsinya ada di lib/i18n.ts (`meta`) karena ikut
+   * berganti bahasa.
+   */
   url: "https://invitato-wedding-invitation-navy.vercel.app",
 } as const;
