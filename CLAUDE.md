@@ -38,6 +38,10 @@ Deploy: **Vercel + Supabase Postgres**
 | Context / state manager | tidak dibutuhkan di skala ini | state lokal di komponen pemakainya |
 | Generator file `.ics` | kode parsing yang tidak menarik | link Google Calendar |
 | **Prisma 7** | wajib `prisma.config.ts` + driver adapter + path client hasil generate — 3 konsep tambahan | **Prisma 6**: `url` di schema, `new PrismaClient()`, import dari `@prisma/client` |
+| Library i18n (next-intl, i18next) | konfigurasi + middleware + namespace untuk dua bahasa di satu halaman | objek biasa di `lib/i18n.ts`, diteruskan lewat prop |
+| Rute `/en` dan `/id` | seluruh `app/` pindah ke segmen dinamis, URL lama perlu redirect | `?lang=id` di rute yang sama |
+| Cookie / localStorage untuk bahasa | bahasa sudah di URL; dua tempat penyimpanan cepat berselisih | URL sebagai satu-satunya sumber |
+| Paket `qrcode` | menyeret `yargs` (parser argumen CLI) hanya untuk menggambar SVG | `qrcode-generator`, nol dependensi |
 
 ---
 
@@ -82,6 +86,7 @@ components/
     Rsvp.tsx              ✅ "use client" — form + ringkasan angka dari GET
     Wishes.tsx            ✅ "use client" — form + daftar ucapan
     Footer.tsx            ✅ ucapan terima kasih + kredit musik
+    AccessCard.tsx        ✅ kartu tamu + QR (satu <path> SVG, server-only)
   ui/
     Reveal.tsx            ✅ "use client" — IntersectionObserver
     Section.tsx           ✅ Section + SectionTitle
@@ -92,8 +97,10 @@ components/
     Lightbox.tsx          ✅ "use client" — modal foto, Esc + panah
     NavDrawer.tsx         ✅ "use client" — menu geser, inert saat tutup
     MusicToggle.tsx       ✅ tombol tampilan murni, tanpa state
+    LanguageToggle.tsx    ✅ tautan ke URL yang sama dengan lang dibalik
 
-lib/config.ts             ✅ SATU-SATUNYA sumber data acara
+lib/config.ts             ✅ FAKTA acara (tanggal, alamat, foto, nama)
+lib/i18n.ts               ✅ KALIMAT acara dua bahasa + pickLang
 lib/schemas.ts            ✅ validasi Zod, dipakai client DAN server
 lib/utils.ts              ✅ countdown, timeAgo, link Calendar & Maps
 lib/prisma.ts             ✅ koneksi database (singleton, aman dari hot-reload)
@@ -105,7 +112,7 @@ app/icon.png              ✅ ornamen belah ketupat, ikon tab (512px)
 app/apple-icon.png        ✅ ikon layar utama iOS (180px)
 app/opengraph-image.jpg   ✅ pratinjau tautan 1200x630, dari moment.webp
 README.md                 ✅ 11 bagian, deliverable PRD §1.9
-tests/                    ✅ 37 test: utils, schemas, route handler
+tests/                    ✅ 50 test: utils, schemas, i18n, route handler
 vitest.config.mts         ✅ alias @/ untuk test
 ```
 
@@ -210,7 +217,7 @@ Pemetaan **final** (tiga di antaranya berubah dari rencana awal setelah dicek di
 **Tidak dikerjakan (PRD §1.6 eksplisit tidak wajib):** admin dashboard, autentikasi, guest list, QR/Access Card, video Pre-Wedding & Live Streaming (asetnya tidak diberikan), Wedding Gift.
 Alasan: dengan deadline 1–2 hari, kualitas 10 fitur wajib > breadth.
 
-**Stretch (hanya kalau tidak menambah kerumitan):** toggle EN/ID, OG image. Personalisasi nama tamu via `?to=` sudah masuk core.
+**Sudah dikerjakan di luar wajib:** OG image + ikon (Step 11), **toggle EN/ID** dan **Access Card** (Step 12). Personalisasi nama tamu via `?to=` sudah masuk core sejak awal.
 
 ---
 
@@ -255,6 +262,24 @@ Dokumentasi Next 16 menjanjikan berkas `opengraph-image.alt.txt` akan menghasilk
 sedangkan `next build` versi ini memakai Turbopack. Sudah diuji dengan build bersih
 (`rm -rf .next`): tagnya tetap tidak muncul. Berkasnya dibuang daripada mengirim
 berkas yang tidak berfungsi. Pelajarannya: dokumentasi menjanjikan, build yang membuktikan.
+
+### `npm run build` gagal EPERM kalau dev/prod server masih hidup
+
+Di Windows, `prisma generate` tidak bisa mengganti `query_engine-windows.dll.node`
+selama `next dev` atau `next start` masih memegangnya. Errornya berbunyi:
+
+```
+EPERM: operation not permitted, rename ...query_engine-windows.dll.node.tmpXXXX
+```
+
+Ini **bukan** masalah kode dan tidak ada hubungannya dengan perubahan terakhir.
+Matikan server dulu sebelum build. Terjadi tiga kali dalam satu sesi:
+
+```powershell
+Get-NetTCPConnection -LocalPort 3000 -State Listen | 
+  Select-Object -ExpandProperty OwningProcess -Unique | 
+  ForEach-Object { Stop-Process -Id $_ -Force }
+```
 
 ### IntersectionObserver TIDAK berjalan di tab otomatis ini
 
@@ -335,7 +360,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 
 ## 11. Progress
 
-**Keadaan sekarang (5 Sep 2026):** Step 1–11 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 37 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi** — tidak ada lagi utang verifikasi yang tersisa. Step 11 (pratinjau tautan + ikon) menyusul sesudahnya.
+**Keadaan sekarang (5 Sep 2026):** Step 1–12 selesai. Undangan sudah **live** di <https://invitato-wedding-invitation-navy.vercel.app>, repo public di <https://github.com/shevasatrian/invitato-wedding-invitation>. Seluruh fitur wajib PRD §1.5 jalan dan terverifikasi terhadap Supabase sungguhan, termasuk di production. 50 test, `tsc`, `eslint`, `next build` hijau. Tabel `Rsvp` kosong; tabel `Wish` berisi **satu ucapan asli dari user** ("Sheva Satrian — Happy wedding", 5 Sep 2026) yang sengaja dipertahankan, bukan data uji. Jangan dihapus. Ketiga deliverable PRD §1.9 sudah ada. **Musik sudah diuji dengar user dan terkonfirmasi bunyi.** Step 12 menambahkan toggle bahasa EN/ID dan section Access Card di luar kebutuhan wajib. Satu-satunya hal yang belum pernah dilihat manusia: **tampilan kartu Access Card** — screenshot gagal dua kali karena tab otomatis di sini tidak di-composite.
 
 - [x] **Step 1 — Scaffold.** Next.js + TS + Tailwind + Prisma + Zod + Vitest ter-install & terverifikasi (`tsc` 0 error, `eslint` 0 error, prisma/sharp/vitest jalan). `lib/config.ts`, `lib/schemas.ts`, `lib/utils.ts`, `prisma/schema.prisma` sudah ditulis. Git init + commit `4a4d68b` di branch `main`.
 - [x] **Step 2 — Optimasi asset.** `scripts/optimize-images.mjs` jalan: **18.56 MB → 0.57 MB (-97%)**. 11 WebP di `public/images/` dengan nama bermakna. Kualitas dicek visual, tidak ada artefak. Path-nya ditambahkan ke `lib/config.ts` (`images` + `gallery`). Commit `9337d96`.
@@ -349,6 +374,7 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 - [x] **Step 9b — Bersih-bersih data uji + perbaikan keadaan kosong.** Lima baris data uji (3 RSVP, 2 ucapan — semuanya buatan sesi verifikasi, dalam rentang 40 detik) dihapus dari Supabase; kedua tabel kini **0 baris** dan siap dilihat tamu. Justru setelah tabelnya kosong terlihat satu cacat yang mustahil tampak sebelumnya: ringkasan RSVP berbunyi **"0 HADIR · 0 BERHALANGAN · 0 ORANG"** kepada tamu pertama — terbaca seperti halaman rusak. Sekarang barisnya baru muncul kalau `attending + notAttending > 0`. **Kedua arah** diuji terhadap database sungguhan: tabel kosong → baris hilang; satu RSVP masuk → baris kembali berbunyi "1 HADIR · 0 BERHALANGAN · 2 ORANG"; baris uji itu lalu ikut dihapus.
 - [x] **Step 10 — Deploy.** Repo public `shevasatrian/invitato-wedding-invitation` (61 blob, diverifikasi **dari sisi GitHub** lewat API tree — bukan cuma dari disk). Sebelum push, password database dicari di seluruh file terlacak **dan seluruh riwayat commit**: nihil. Project Vercel tersambung otomatis ke repo; 2 env var × 3 environment terpasang sebagai Secret; `prisma migrate deploy` menjawab "No pending migrations" (skema sudah benar sejak Step 5). Production **READY** dan **terbuka untuk umum** — tidak ada Deployment Protection yang menghadang penilai. Diverifikasi langsung ke URL production: halaman `200`, `GET /api/rsvp` → `{0,0,0}`, `POST` nama 1 huruf → **400** berisi `fieldErrors`, body bukan JSON → **400**, dan **client nakal** yang mengirim `NOT_ATTENDING` bersama `guestCount: 9` tersimpan sebagai **0** — server production tidak percaya kiriman client. Kedua baris uji lalu dihapus; tabel kembali 0 baris dan keadaan kosong terkonfirmasi benar (ringkasan RSVP tidak tampil).
 - [x] **Step 11 — Pratinjau tautan & ikon.** Dua celah ditemukan lewat pemeriksaan `<head>` production, bukan perkiraan. **(1) `og:image` tidak ada** — link undangan yang dibagikan di WhatsApp hanya menampilkan teks tanpa foto, padahal di situlah undangan digital sebenarnya beredar. Sekarang `app/opengraph-image.jpg` 1200x630 (69 KB) dari `moment.webp`, satu-satunya foto lanskap; potongannya dipilih setelah **melihat** tiga varian — `attention` menang karena `center` memotong ekor gaun. `twitter:image` ikut terisi sendiri tanpa berkas kedua, terbukti dari kode Next (`resolve-metadata.js:637`: `if (!hasTwImages) autoFillProps.images = openGraph.images`). **(2) Favicon masih logo Next.js** — `app/favicon.ico` masuk di commit scaffold `4a4d68b` dan tidak pernah disentuh, jadi tab tamu menampilkan huruf N di sebelah nama pengantin. Diganti `icon.png` + `apple-icon.png` berisi ornamen belah ketupat yang sama dengan `Divider`, diuji keterbacaannya di 32px (bukan cuma 512px). `metadataBase` diisi dari `site.url` yang baru di `lib/config.ts` supaya URL gambar jadi absolut — WhatsApp mengabaikan URL relatif.
+- [x] **Step 12 — Toggle bahasa EN/ID + Access Card.** Dikerjakan lewat jalur lengkap: spec (`docs/superpowers/specs/`), rencana 9 task (`docs/superpowers/plans/`), lalu dieksekusi task demi task. **Bahasa disimpan di URL (`?lang=id`)**, meniru mekanisme `?to=` yang sudah ada — tidak ada Context, seluruh section tetap Server Component, dan kamus tidak menambah satu byte pun JavaScript ke browser. **Kelengkapan terjemahan dijamin compiler**: kamus Inggris ditulis tanpa `as const` (tipenya jadi `string`), kamus Indonesia dianotasi `: Dict`, sehingga satu kunci terlewat = `tsc` gagal. **Task 1 sengaja berupa pengukuran, bukan kode**: apakah state `opened` bertahan saat `searchParams` berubah. Jawabannya bertahan (selisih scroll 0px dengan `scroll={false}`), jadi toggle boleh dipasang di nav drawer, bukan hanya di sampul. **`schemas.ts` berubah jadi fungsi** yang menerima pesan — yang berparameter hanya pesannya, aturannya tetap ditulis sekali. Route handler memakai kamus Indonesia sehingga **kontrak API tidak berubah sama sekali**, terverifikasi dengan `curl`. Access Card memakai `qrcode-generator` (nol dependensi) dan menggambar QR sebagai **satu `<path>`**, tanpa `dangerouslySetInnerHTML`. 37 → 50 test.
 
 **Cara kerja:** user minta konfirmasi setiap selesai satu step. **Jangan lanjut ke step berikutnya tanpa aba-aba.**
 
@@ -372,7 +398,10 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | `9035ede` | README |
 | `df4bd6a` | sembunyikan ringkasan RSVP saat belum ada isian + hapus data uji |
 | `fa85504` | catat seluruh keadaan project di CLAUDE.md |
-| `1fdc94b` | isi tautan demo & repo, `.vercelignore`, catat Step 10 selesai |
+| `1fdc94b` | tautan demo & repo, `.vercelignore`, Step 10 selesai |
+| `55f25c4` | gambar pratinjau tautan + ikon undangan |
+| `31ab634` · `f7a8275` | spec dan rencana implementasi Step 12 |
+| `9b8098e` … `ab6de0a` | Step 12: kamus, toggle, section, form, metadata, Access Card |
 
 ---
 
@@ -381,6 +410,8 @@ menghasilkan teks `RICKYandFELLYCIA`. Di layar terlihat berjarak karena `mx-2`, 
 | Hal | Kapan lunas |
 |---|---|
 | ~~Bunyi musik belum pernah diverifikasi manusia~~ | **lunas 5 Sep 2026** — user membuka URL production, klik Open Invitation, musik terdengar dan toggle berfungsi |
+| Tampilan kartu Access Card belum pernah dilihat manusia — screenshot gagal dua kali (`CDP timed out`) karena tab otomatis di sini tidak di-composite | **butuh user** |
+| Terjemahan Bahasa Indonesia dikarang, bukan diambil dari sumber resmi — khususnya ayat Kidung Agung 5:2 | **butuh user membaca ulang** |
 | ~~Tautan Demo & Repository di README masih placeholder~~ | lunas di Step 10 |
 | ~~`next build` belum pernah dijalankan di lingkungan Vercel~~ | lunas di Step 10 — build Vercel 31 detik, hijau |
 

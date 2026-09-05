@@ -40,7 +40,15 @@ npm run db:migrate        # membuat tabel Rsvp dan Wish
 npm run dev               # buka http://localhost:3000
 ```
 
-Personalisasi nama tamu lewat query string: `http://localhost:3000/?to=Budi%20Santoso` akan menyapa "Budi Santoso" di halaman sampul.
+Dua hal diatur lewat query string, dan keduanya bisa digabung:
+
+| URL | Hasil |
+|---|---|
+| `/?to=Budi%20Santoso` | menyapa "Budi Santoso" di halaman sampul dan pada Access Card |
+| `/?lang=id` | seluruh undangan berbahasa Indonesia |
+| `/?to=Budi%20Santoso&lang=id` | keduanya sekaligus |
+
+Nilai `lang` selain `id` — termasuk yang kosong dan yang tidak dikenal — jatuh ke Bahasa Inggris, sehingga tidak ada cara membuat halaman gagal lewat parameter ini.
 
 ### Semua perintah
 
@@ -98,7 +106,14 @@ Seluruh kebutuhan wajib PRD §1.5:
 - [x] Peta lokasi (Google Maps embed, tanpa API key)
 - [x] Animasi transisi antar section
 
-**Sengaja tidak dikerjakan**, karena PRD §1.6 menyatakannya tidak wajib dan waktunya 1–2 hari: admin dashboard, autentikasi, guest list, QR/Access Card, video Pre-Wedding & Live Streaming (asetnya memang tidak diberikan), dan Wedding Gift. Pertimbangannya sederhana — sepuluh fitur wajib yang selesai dan teruji lebih berharga daripada lima belas fitur yang setengah jadi.
+Ditambahkan di luar kebutuhan wajib:
+
+- [x] **Toggle bahasa Inggris / Indonesia.** Seluruh antarmuka tamu ikut berganti — narasi, judul section, menu, label form, pesan error validasi, teks alternatif foto, sampai judul pratinjau tautan WhatsApp.
+- [x] **Access Card**, kartu bergaya tiket berisi nama tamu dan kode QR.
+
+**Sengaja tidak dikerjakan**, karena PRD §1.6 menyatakannya tidak wajib dan waktunya 1–2 hari: admin dashboard, autentikasi, guest list, video Pre-Wedding & Live Streaming (asetnya memang tidak diberikan), dan Wedding Gift. Pertimbangannya sederhana — sepuluh fitur wajib yang selesai dan teruji lebih berharga daripada lima belas fitur yang setengah jadi.
+
+Catatan jujur tentang Access Card: QR-nya **dekoratif**. Isinya tautan undangan ini lengkap dengan nama tamu, jadi kalau dipindai akan membuka halaman yang benar — tetapi tidak ada pemindaian kehadiran di lokasi, dan memang bukan itu yang diminta.
 
 ---
 
@@ -109,7 +124,7 @@ Satu repo Next.js yang memuat frontend sekaligus backend. Route Handler di `app/
 ```
 app/
   layout.tsx              4 font + metadata
-  page.tsx                susunan section, await searchParams (?to=)
+  page.tsx                susunan section, await searchParams (?to=, ?lang=)
   globals.css             design token + prefers-reduced-motion
   api/rsvp/route.ts       POST simpan · GET ringkasan
   api/wishes/route.ts     POST simpan · GET 100 terbaru
@@ -119,16 +134,17 @@ components/
   Invitation.tsx          satu-satunya pemegang state halaman
   sections/               1 file = 1 section, namanya sama dengan judulnya
   ui/                     Reveal, Section, Divider, Button, Field, Lightbox,
-                          NavDrawer, MusicToggle, CoupleNames
+                          NavDrawer, MusicToggle, CoupleNames, LanguageToggle
 
 lib/
-  config.ts               SATU-SATUNYA sumber data acara
+  config.ts               FAKTA acara: tanggal, alamat, foto, nama
+  i18n.ts                 KALIMAT acara dalam dua bahasa
   schemas.ts              validasi Zod, dipakai browser DAN server
   utils.ts                countdown, waktu relatif, link Calendar & Maps
   prisma.ts               koneksi database (singleton)
 
 prisma/schema.prisma      model Rsvp & Wish
-tests/                    37 test
+tests/                    50 test
 ```
 
 **Empat aturan yang dipegang konsisten:**
@@ -137,6 +153,20 @@ tests/                    37 test
 2. **Tidak ada data acara yang di-hardcode di komponen.** Semua dari `lib/config.ts`. Mengganti pasangan, tanggal, dan alamat cukup mengubah satu file.
 3. **Server Component secara default.** Hanya 8 file memakai `"use client"`. Section-section undangan tidak punya state sama sekali; mereka masuk ke `Invitation` lewat `children`, jadi tidak ikut terbundel ke browser.
 4. **Keempat route handler berbentuk sama persis:** `try` → `safeParse` → query Prisma → `NextResponse`.
+5. **Bahasa disimpan di URL, bukan di state.** `?lang=id` dibaca `page.tsx`, dipakai memilih satu kamus dari `lib/i18n.ts`, lalu diteruskan sebagai prop biasa.
+
+### Kenapa bahasa ditaruh di URL
+
+Mekanismenya sama persis dengan `?to=` yang sudah dipakai untuk nama tamu — tidak ada konsep baru yang perlu dipelajari. Akibat langsungnya:
+
+- **Section tetap Server Component.** Kamus diteruskan lewat prop, jadi tidak ada satu byte pun tambahan JavaScript yang diunduh tamu. Diperiksa: kata `qrcode` dan `isDark` tidak muncul di satu berkas pun dalam `.next/static/chunks`.
+- **Tombolnya cuma tautan.** `components/ui/LanguageToggle.tsx` tidak menyimpan apa pun; ia membangun URL yang sama dengan `lang` dibalik, dan `?to=` ikut dipertahankan.
+- **Pilihan bahasa ikut terbawa saat tautan dibagikan** dan bisa di-bookmark.
+- **Tidak perlu Context.** Kalau bahasa disimpan sebagai state client, setiap section harus jadi Client Component untuk bisa membacanya.
+
+Kelengkapan terjemahan dijamin TypeScript, bukan pemeriksaan manual. Kamus Inggris ditulis **tanpa** `as const` sehingga tipe nilainya `string`, lalu kamus Indonesia dianotasi `: Dict`. Satu kunci terlewat berarti `npm run typecheck` gagal.
+
+Satu hal yang membatasi bentuk kamus: isinya diteruskan dari Server Component ke Client Component, jadi **harus serializable** — tidak boleh berisi fungsi. Teks yang memuat angka karena itu memakai penanda, misalnya `"{n} menit lalu"`, yang diganti di tempat pemakaiannya.
 
 ### Di mana state disimpan
 
@@ -148,6 +178,8 @@ tests/                    37 test
 | `Rsvp.tsx` / `Wishes.tsx` | isian form + status kirim | milik masing-masing form |
 
 Semuanya `useState` biasa. **Tidak ada satu pun state yang perlu dibaca komponen yang berjauhan** — itulah alasan konkret project ini tidak memakai Context maupun state manager, bukan karena "belum sempat".
+
+Bahasa sengaja **tidak** masuk daftar ini. Ia tinggal di URL, sehingga tetap tidak ada state yang dibaca lintas komponen meskipun fiturnya bertambah.
 
 ### Kontrak API
 
@@ -198,7 +230,7 @@ Aturan validasinya sendiri hanya ditulis **sekali**, di `lib/schemas.ts`, lalu d
 
 ### Stack
 
-Next.js 16.3.4 · React 19.2.8 · TypeScript 5 (strict) · Tailwind CSS 4 · Zod 4 · Prisma 6.19 · Vitest 4 · sharp
+Next.js 16.3.4 · React 19.2.8 · TypeScript 5 (strict) · Tailwind CSS 4 · Zod 4 · Prisma 6.19 · Vitest 4 · sharp · qrcode-generator
 
 **Next.js fullstack, bukan Vite + Express terpisah.** Satu repo, satu deploy, satu bahasa. Route Handler sudah memenuhi kebutuhan "backend API + database" pada PRD, dan waktu yang hemat dipakai untuk mengerjakan fitur.
 
@@ -216,6 +248,10 @@ Konsekuensinya beberapa hal populer sengaja **tidak** dipakai:
 | Cursor pagination | konsep cursor butuh penjelasan panjang | `findMany({ orderBy: desc, take: 100 })` |
 | Context / state manager | tidak ada state yang perlu dibaca komponen berjauhan | state lokal di komponen pemakainya |
 | Generator file `.ics` | kode parsing yang tidak menarik untuk dinilai | tautan Google Calendar |
+| Library i18n (`next-intl`, `i18next`) | konfigurasi, middleware, dan konsep namespace untuk dua bahasa di satu halaman | objek biasa di `lib/i18n.ts` + prop |
+| Rute terpisah `/en` dan `/id` | seluruh isi `app/` harus pindah ke segmen dinamis, dan URL yang sudah dibagikan perlu redirect | `?lang=id` pada rute yang sama |
+| Cookie / `localStorage` untuk bahasa | bahasa sudah ada di URL; menyimpannya di dua tempat membuka peluang keduanya berselisih | URL sebagai satu-satunya sumber |
+| Library QR siap pakai yang menghasilkan SVG | `qrcode` menyeret `yargs` — parser argumen CLI — hanya untuk menggambar kotak | `qrcode-generator` (nol dependensi), path SVG digambar sendiri |
 
 ### Prisma 6, bukan 7
 
@@ -230,6 +266,9 @@ Prisma 6 memakai pola yang ada di semua tutorial: `url` di schema, `import { Pri
 - **`preload="none"` pada `<audio>`.** Berkasnya 4,4 MB — tujuh kali lipat seluruh foto undangan. Tanpa itu, tamu mengunduhnya begitu halaman dibuka padahal belum tentu melanjutkan.
 - **Tombol musik tidak ditampilkan sama sekali kalau berkas audionya gagal dimuat.** `Invitation` menyimpan status `musicAvailable`, sehingga halaman tidak pernah menyuguhkan tombol yang tidak berfungsi.
 - **Panel kiri desktop memakai foto lanskap, halaman sampul memakai foto potret.** Foto potret 836×1881 yang dipasang di panel lebar akan dipotong `object-cover` sampai kepala pengantin hilang. Rasio foto dicocokkan dengan bentuk wadahnya.
+- **Pesan error dari server sengaja tetap satu bahasa.** Tamu tidak pernah melihatnya: browser memvalidasi lebih dulu dengan aturan yang sama dari berkas yang sama, jadi yang sampai ke server hanya kiriman yang melewati browser — misalnya `curl`. Menambah field `lang` ke body POST demi jalur yang tidak pernah dilalui tamu berarti memperumit kontrak API tanpa ada yang diuntungkan.
+- **Yang berparameter pada schema hanya pesannya, bukan aturannya.** `rsvpSchema(pesan)` tetap menulis "minimal 2 karakter" satu kali. Kalau aturannya ikut bercabang per bahasa, klaim utama project — client dan server mustahil punya definisi "valid" yang berbeda — langsung batal.
+- **QR digambar sebagai satu elemen `<path>`.** Library-nya hanya ditanya kotak mana yang gelap. Dua akibatnya: tidak perlu `dangerouslySetInnerHTML`, dan satu `path` jauh lebih ringan daripada 1089 elemen `<rect>` terpisah untuk QR berukuran 33×33.
 
 ---
 
@@ -243,13 +282,20 @@ Prisma 6 memakai pola yang ada di semua tutorial: `url` di schema, `import { Pri
 
 Diperiksa dengan mengukur DOM, bukan menilai dari tangkapan layar:
 
-- **Kontras** — 54 elemen teks diperiksa, **0 di bawah ambang WCAG AA**. Aturan yang dipegang: teks sekunder berukuran kecil selalu `text-ink/80`, satu-satunya opasitas yang lolos di atas kedua warna latar project ini (5,75 di atas cream; 4,76 di atas mist).
+- **Kontras** — diukur ulang setelah section Access Card ditambahkan: **0 dari 37 elemen** gagal pada lima section berlatar warna solid, dengan Access Card sendiri berkisar 4,81–10,27. Aturan yang dipegang: teks sekunder berukuran kecil selalu `text-ink/80`, satu-satunya opasitas yang lolos di atas kedua warna latar project ini (5,75 di atas cream; 4,76 di atas mist).
 - **Struktur heading** — satu `<h1>`, satu `<h2>` per section, `<h3>` untuk sub-bagian. Penting karena pengguna pembaca layar berpindah antar bagian lewat daftar heading, bukan dengan menggulir.
 - **Penanda fokus** — 26 dari 26 kontrol punya penanda fokus yang terlihat, termasuk yang berlatar gelap (cincin putih).
 - **Form** — setiap isian punya `<label for>`, `aria-invalid`, dan `aria-describedby` yang menunjuk ke pesan errornya, sehingga error ikut dibacakan pembaca layar.
-- **Penanda bahasa** — halaman `lang="en"`, tetapi section RSVP dan Kind Words ditandai `lang="id"` supaya "Kirim Konfirmasi" tidak dilafalkan dengan aturan pengucapan bahasa Inggris.
+- **Penanda bahasa** — atribut `lang` dipasang pada `<main>` mengikuti bahasa yang dipilih tamu, sehingga pembaca layar memakai aturan pengucapan yang benar untuk seluruh isi undangan. Sebelum ada toggle bahasa, halaman berbahasa Inggris memuat dua section berbahasa Indonesia yang harus ditandai satu per satu; tambalan itu kini tidak diperlukan lagi karena seluruh halaman konsisten satu bahasa.
+- **Teks alternatif foto ikut berganti bahasa.** Sebelumnya `alt` galeri berbahasa Indonesia di dalam halaman `lang="en"` — cacat yang tidak pernah terlihat di layar dan hanya terdengar oleh pembaca layar.
 - **`prefers-reduced-motion`** — seluruh transisi dimatikan bagi yang mengaktifkan pengaturan hemat gerak di sistemnya, sementara isinya tetap tampil utuh.
 - **Nav drawer** memakai atribut `inert` saat tertutup, jadi isinya tidak bisa dijangkau Tab.
+
+Sapuan terakhir memeriksa 29 frasa Inggris pada halaman Indonesia dan 27 frasa Indonesia pada halaman Inggris — termasuk isi `aria-label`, `placeholder`, dan `title`, bukan hanya teks yang terlihat. Hasilnya nol kebocoran di kedua arah.
+
+### Responsif
+
+Diukur pada enam kombinasi — 375 / 768 / 1440 px dikali dua bahasa — dengan menyuntikkan iframe seukuran perangkat, karena media query mengikuti viewport iframe-nya. Tidak ada overflow horizontal di satu pun kombinasi. Pengujian dua bahasa bukan formalitas: kalimat Bahasa Indonesia hampir selalu lebih panjang daripada padanan Inggrisnya, dan itulah cara tata letak pecah.
 
 ---
 
@@ -259,12 +305,13 @@ Diperiksa dengan mengukur DOM, bukan menilai dari tangkapan layar:
 npm run test
 ```
 
-**37 test, 3 berkas, ±0,7 detik, tidak satu pun menyentuh database.**
+**50 test, 4 berkas, ±1 detik, tidak satu pun menyentuh database.**
 
 | Berkas | Isi |
 |---|---|
-| `tests/utils.test.ts` | hitung mundur, waktu relatif, pembuat link Calendar & Maps, format tanggal |
-| `tests/schemas.test.ts` | seluruh aturan validasi RSVP & ucapan, termasuk aturan lintas-field |
+| `tests/utils.test.ts` | hitung mundur, waktu relatif, link Calendar & Maps, format tanggal berlokal, pembangun URL isi QR |
+| `tests/schemas.test.ts` | seluruh aturan validasi RSVP & ucapan, termasuk aturan lintas-field dan pesan yang mengikuti kamus |
+| `tests/i18n.test.ts` | pemilihan bahasa dari URL, kesepadanan kedua kamus, tidak ada nilai kosong |
 | `tests/api-rsvp.test.ts` | route handler dengan Prisma yang ditiru `vi.mock` |
 
 Tiga hal yang membuat test ini bukan sekadar formalitas:
@@ -272,6 +319,7 @@ Tiga hal yang membuat test ini bukan sekadar formalitas:
 1. **`now` dikirim sebagai parameter.** `getTimeLeft(target, now)` tidak pernah membaca jam komputer sendiri — kalau iya, hasil test-nya berbeda setiap kali dijalankan.
 2. **Test schema bernilai ganda.** Schema yang sama dipakai browser dan server, jadi sekali lolos, kedua sisi ikut terjamin.
 3. **`vi.mock` dipakai untuk memeriksa apa yang hendak disimpan server**, bukan sekadar menghindari database. Itulah yang mengunci perilaku "`NOT_ATTENDING` selalu tersimpan 0 orang" dan "kegagalan database dijawab 500 tanpa membocorkan pesan teknis ke tamu".
+4. **Test kamus menutup celah yang tidak dijangkau TypeScript.** Compiler menjamin kedua bahasa punya kunci yang sama, tetapi tidak menjamin panjang array — teks alternatif galeri yang kurang satu tetap lolos `tsc`. Test-nya membandingkan bentuk kedua kamus termasuk panjang setiap array.
 
 ---
 
