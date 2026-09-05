@@ -356,24 +356,65 @@ curl -s -X POST $URL/api/rsvp \
 
 ## 10. Disclosure penggunaan AI
 
-Project ini dikerjakan dengan bantuan **Claude Code (model Claude Opus)** sebagai *pair programmer*. Disampaikan terbuka sesuai permintaan PRD §1.9.
+Disampaikan terbuka sesuai permintaan PRD §1.9.
 
-**Yang dikerjakan dengan bantuan AI:**
+### Alat yang dipakai
 
-- Inspeksi template referensi Invitato secara langsung di browser — membaca `getComputedStyle` halaman aslinya untuk mendapatkan nilai warna dan font yang sebenarnya, bukan menebak dari tangkapan layar.
+| Alat | Peran |
+|---|---|
+| **Claude Code** (CLI), model **Claude Opus 5** | *pair programmer* untuk seluruh pengerjaan |
+| Otomasi browser Chrome | mengukur DOM secara langsung — kontras, lebar viewport, posisi scroll, isi `innerText` |
+| Alur kerja terstruktur *brainstorming → spec → rencana → eksekusi per task* | dipakai khusus untuk fitur terakhir (toggle bahasa + Access Card) |
+
+Dokumen spec dan rencana implementasinya **ikut di-commit dan bisa dibaca**, bukan dibuang setelah dipakai:
+
+```
+docs/superpowers/specs/2026-09-05-i18n-dan-access-card-design.md
+docs/superpowers/plans/2026-09-05-i18n-dan-access-card.md
+```
+
+Rencana itu berisi sembilan task. Task pertamanya sengaja **tidak menulis kode sama sekali** — isinya mengukur satu perilaku yang jawabannya menentukan desain berikutnya.
+
+### Bagian mana yang dibantu AI
+
+- Inspeksi template referensi Invitato langsung di browser — membaca `getComputedStyle` halaman aslinya untuk mendapat nilai warna dan font yang sebenarnya, bukan menebak dari tangkapan layar.
 - Scaffolding project, konfigurasi Tailwind/Prisma/Vitest, dan skrip optimasi gambar.
-- Implementasi seluruh komponen, route handler, dan test.
-- Audit aksesibilitas terukur (kontras, struktur heading, penanda fokus) dan verifikasi responsif lewat pengukuran DOM.
+- Implementasi seluruh komponen, route handler, kamus dua bahasa, dan test.
+- Audit aksesibilitas terukur (kontras, struktur heading, penanda fokus, penanda bahasa) dan verifikasi responsif lewat pengukuran DOM.
+- Deploy ke Vercel + Supabase, termasuk pemeriksaan kebocoran kredensial pada seluruh riwayat commit sebelum repo dipublikasikan.
+- Gambar pratinjau tautan, ikon, dan section Access Card.
+- Penelusuran serta perbaikan bug scroll yang dilaporkan penulis.
 - Penulisan komentar kode, README ini, dan catatan kerja internal.
 
-**Yang tetap menjadi keputusan manusia:**
+Singkatnya: **hampir seluruh baris kode ditulis dengan bantuan AI.** Menuliskannya setengah-setengah akan menyesatkan.
 
-- Pemilihan stack dan penolakan library yang dianggap berlebihan untuk skala ini (tabel di bagian 6).
-- Ruang lingkup: fitur mana yang dikerjakan dan mana yang sengaja tidak, beserta alasannya.
+### Yang tetap keputusan manusia
+
+- Pemilihan stack, dan penolakan library yang dianggap berlebihan untuk skala ini (tabel di bagian 6).
+- Ruang lingkup: fitur mana yang dikerjakan, mana yang tidak, beserta alasannya.
 - Pemilihan musik latar dan pemetaan foto ke tiap section.
+- Keputusan menambah toggle bahasa dan Access Card **setelah** AI menyarankan keduanya tidak dikerjakan — penulis menimbang ulang dan memutuskan sebaliknya.
+- Bentuk tombol bahasa: dipilih dari tiga usulan, dan permintaan agar kata penghubung nama mempelai ikut diterjemahkan jadi "dan".
+- Repository dibuat publik, dan satu ucapan asli penulis di database sengaja dipertahankan.
 - Persetujuan setiap tahap sebelum lanjut ke tahap berikutnya.
 
-**Yang diverifikasi, bukan diterima begitu saja.** Setiap tahap diuji dengan bukti yang bisa diulang — `curl` ke endpoint, pengukuran DOM, dan test yang sengaja dibuat gagal lebih dulu untuk memastikan test-nya memang bisa menangkap kesalahan. Beberapa saran awal AI juga dibatalkan setelah diuji: Prisma 7 diturunkan ke 6 setelah build gagal, dan pemetaan foto panel desktop diubah setelah terlihat terpotong di layar.
+### Yang diverifikasi, bukan diterima begitu saja
+
+Bagian ini yang membuat disclosure di atas bermakna. Setiap tahap diuji dengan bukti yang bisa diulang — `curl` ke endpoint, pengukuran DOM, dan test yang sengaja dirusak lebih dulu untuk memastikan test-nya memang bisa gagal.
+
+**Lima kali saran atau dugaan AI terbukti salah dan dibatalkan setelah diuji:**
+
+1. **Prisma 7 diturunkan ke 6** setelah build gagal dengan `P1012`.
+2. **Pemetaan foto panel desktop diubah** setelah terlihat memotong kepala pengantin di layar.
+3. **`opengraph-image.alt.txt` dibuang.** Dokumentasi Next menjanjikan berkas itu menghasilkan `og:image:alt`; diuji dengan build bersih, tagnya tidak pernah muncul karena dukungannya hanya ada di loader webpack sedangkan build ini memakai Turbopack.
+4. **Probe pengukuran sempat salah alat.** Rencana awal memakai `<a href>` untuk menguji apakah state bertahan saat URL berubah — itu memicu *full reload* yang pasti mereset apa pun, sehingga akan memberi jawaban salah yang meyakinkan. Diganti `next/link` sebelum dijalankan.
+5. **Perbaikan pertama untuk bug scroll gagal.** `window.scrollTo(0, 0)` di dalam effect tidak berpengaruh; pengukuran menunjukkan posisi tetap 5002 karena pemulihan scroll browser berjalan *setelah* effect React. Akar sebenarnya baru ditemukan setelah itu.
+
+Satu klaim di README ini juga pernah menjadi tidak benar setelah kode berubah — bagian aksesibilitas masih menyebut dua section ditandai `lang="id"` padahal tambalan itu sudah dihapus — dan dikoreksi saat ketahuan.
+
+### Batasnya
+
+Tiga hal tidak bisa diverifikasi mesin dan diperiksa manusia: **bunyi musik latar** (browser menolak `play()` untuk klik otomatis), **tampilan kartu Access Card**, dan **kualitas terjemahan Bahasa Indonesia**, yang dikarang AI dan perlu dibaca ulang — khususnya kutipan Kidung Agung 5:2, yang versi Inggrisnya memakai The Message sedangkan versi Indonesianya lebih dekat ke Terjemahan Baru.
 
 Penulis memahami dan sanggup menjelaskan setiap baris kode di repository ini.
 
